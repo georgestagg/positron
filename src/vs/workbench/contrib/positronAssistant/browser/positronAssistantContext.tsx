@@ -14,6 +14,7 @@ import { IHoverService } from 'vs/platform/hover/browser/hover';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { ILayoutService } from 'vs/platform/layout/browser/layoutService';
 import { INotificationService } from 'vs/platform/notification/common/notification';
+import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 
 export interface PositronAssistantServices {
@@ -28,6 +29,7 @@ export interface PositronAssistantServices {
 	readonly clipboardService: IClipboardService;
 	readonly notificationService: INotificationService;
 	readonly editorService: IEditorService;
+	readonly markdownRenderer: PositronAssistantMarkdownRenderer;
 }
 
 const PositronAssistantContext = createContext<PositronAssistantServices>(undefined!);

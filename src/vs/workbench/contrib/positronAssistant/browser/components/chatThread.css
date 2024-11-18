@@ -3,12 +3,8 @@
  *  Licensed under the Elastic License 2.0. See LICENSE.txt for license information.
  *--------------------------------------------------------------------------------------------*/
 
-.positron-assistant-container {
-	height: 100%;
-}
-
-.positron-assistant {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
+.positron-assistant-chat-thread {
+	flex-grow: 1;
+	overflow-y: auto;
+	padding: 0 10px;
 }

@@ -29,6 +29,8 @@ import { IClipboardService } from 'vs/platform/clipboard/common/clipboardService
 import { INotificationService } from 'vs/platform/notification/common/notification';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { PositronAssistant } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistant';
+import { ILanguageService } from 'vs/editor/common/languages/language';
+import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
 
 export class PositronAssistantView
 	extends PositronViewPane
@@ -85,7 +87,8 @@ export class PositronAssistantView
 		@ILayoutService private readonly layoutService: ILayoutService,
 		@IClipboardService private readonly clipboardService: IClipboardService,
 		@INotificationService private readonly notificationService: INotificationService,
-		@IEditorService private readonly editorService: IEditorService
+		@IEditorService private readonly editorService: IEditorService,
+		@ILanguageService private readonly languageService: ILanguageService
 	) {
 		super(
 			options,
@@ -118,6 +121,13 @@ export class PositronAssistantView
 		this.positronAssistantContainer = DOM.$('.positron-assistant-container');
 		container.appendChild(this.positronAssistantContainer);
 
+		// Create a Markdown renderer that can be accessed through the PositronAssistant context
+		const markdownRenderer = new PositronAssistantMarkdownRenderer(
+			undefined,
+			this.languageService,
+			this.openerService
+		);
+
 		// Create the PositronReactRenderer for the PositronAssistant component and render it.
 		this.positronReactRenderer = new PositronReactRenderer(this.positronAssistantContainer);
 		this._register(this.positronReactRenderer);
@@ -134,6 +144,7 @@ export class PositronAssistantView
 				clipboardService={this.clipboardService}
 				notificationService={this.notificationService}
 				editorService={this.editorService}
+				markdownRenderer={markdownRenderer}
 			/>
 		);
 	}

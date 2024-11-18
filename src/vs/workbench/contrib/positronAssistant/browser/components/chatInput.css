@@ -1,0 +1,35 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (C) 2024 Posit Software, PBC. All rights reserved.
+ *  Licensed under the Elastic License 2.0. See LICENSE.txt for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.positron-assistant-chat-input {
+	display: flex;
+	flex-direction: column;
+	border-radius: 5px;
+	background: var(--vscode-positronAssistant-contrastBackground);
+	border: 1px solid var(--vscode-positronAssistant-border);
+	margin: 0 18px 10px 10px;
+}
+
+.positron-assistant-chat-input:focus-within {
+	border: 1px solid var(--vscode-focusBorder);
+}
+
+.positron-assistant-chat-input .editable {
+	width: 100%;
+	min-height: 65px;
+	max-height: 390px;
+	margin: 10px 10px 0 10px;
+	overflow-y: auto;
+}
+
+.positron-assistant-chat-input .editable:focus {
+	outline: none;
+}
+
+.positron-assistant-chat-input .chatHint {
+	align-self: flex-end;
+	font-size: 80%;
+	margin: 0 5px;
+}

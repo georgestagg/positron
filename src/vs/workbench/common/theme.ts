@@ -2044,6 +2044,24 @@ export const POSITRON_WELCOME_HOVER_BACKGROUND = registerColor('positronWelcome.
 	hcLight: listHoverBackground
 }, localize('positronWelcome.hoverBackground', "Positron welcome page hover background color."));
 
+// < --- Positron Assistant --- >
+
+// Positron assistant contrast background color.
+export const POSITRON_ASSISTANT_CONTRAST_BACKGROUND_COLOR = registerColor('positronAssistant.contrastBackground', {
+	dark: lighten(editorBackground, 0.2),
+	light: darken(editorBackground, 0.1),
+	hcDark: editorBackground,
+	hcLight: editorBackground
+}, localize('positronAssistant.contrastBackground', "Positron assistant contrast background color."));
+
+// Positron assistant border color.
+export const POSITRON_ASSISTANT_BORDER_COLOR = registerColor('positronAssistant.border', {
+	dark: lighten(editorBackground, 0.3),
+	light: darken(editorBackground, 0.2),
+	hcDark: '#ff0000',
+	hcLight: '#ff0000'
+}, localize('positronAssistant.border', "Positron assistant border color."));
+
 // *************************************************************************************************
 // *************************************************************************************************
 // *************************************************************************************************

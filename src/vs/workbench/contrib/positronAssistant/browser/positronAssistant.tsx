@@ -7,6 +7,8 @@ import React, { useEffect } from 'react';
 import 'vs/css!./positronAssistant';
 import { DisposableStore } from 'vs/base/common/lifecycle';
 import { PositronAssistantContextProvider, PositronAssistantServices } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
+import { ChatThread } from 'vs/workbench/contrib/positronAssistant/browser/components/chatThread';
+import { ChatInput } from 'vs/workbench/contrib/positronAssistant/browser/components/chatInput';
 
 export interface PositronAssistantProps extends PositronAssistantServices { }
 
@@ -26,9 +28,10 @@ export const PositronAssistant = (props: React.PropsWithChildren<PositronAssista
 	}, [props.reactComponentContainer]);
 
 	return (
-		<div className='positron-connections'>
+		<div className='positron-assistant'>
 			<PositronAssistantContextProvider {...props}>
-				Hello, world.
+				<ChatThread></ChatThread>
+				<ChatInput></ChatInput>
 			</PositronAssistantContextProvider>
 		</div>
 	);
