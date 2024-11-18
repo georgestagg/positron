@@ -2046,6 +2046,14 @@ export const POSITRON_WELCOME_HOVER_BACKGROUND = registerColor('positronWelcome.
 
 // < --- Positron Assistant --- >
 
+// Positron assistant background color.
+export const POSITRON_ASSISTANT_BACKGROUND_COLOR = registerColor('positronAssistant.background', {
+	dark: 'sideBar.background',
+	light: 'sideBar.background',
+	hcDark: 'sideBar.background',
+	hcLight: 'sideBar.background'
+}, localize('positronAssistant.background', "Positron assistant background color."));
+
 // Positron assistant contrast background color.
 export const POSITRON_ASSISTANT_CONTRAST_BACKGROUND_COLOR = registerColor('positronAssistant.contrastBackground', {
 	dark: lighten(editorBackground, 0.2),

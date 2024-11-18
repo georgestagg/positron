@@ -4,8 +4,57 @@
  *--------------------------------------------------------------------------------------------*/
 
 .positron-assistant-chat-message {
-	margin: 10px 0;
-	padding: 0 10px;
+	position: relative;
+	margin: 10px;
 	border-radius: 5px;
 	border: 1px solid var(--vscode-positronAssistant-border);
+}
+
+/* Rainbow active spinner effect */
+@keyframes rotate {
+	100% {
+		transform: rotate(1turn);
+	}
+}
+
+.positron-assistant-message-content {
+	padding: 0 10px;
+	position: relative;
+}
+
+.positron-assistant-message-spinner {
+	position: absolute;
+	width: calc(100% + 6px);
+	height: calc(100% + 6px);
+	margin-top: -3px;
+	margin-left: -3px;
+	z-index: 0;
+	border-radius: 5px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&::before {
+		content: '';
+		position: absolute;
+		z-index: -2;
+		margin: auto;
+		width: 100vmax;
+		height: 100vmax;
+		background-image: conic-gradient(#f08, #f80, #ee1, #4d4, #36f, #c0c, #f08);
+		animation: rotate 2s linear infinite;
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		z-index: -1;
+		left: 3px;
+		top: 3px;
+		width: calc(100% - 6px);
+		height: calc(100% - 6px);
+		background: var(--vscode-positronAssistant-background);
+		border-radius: 3px;
+	}
 }

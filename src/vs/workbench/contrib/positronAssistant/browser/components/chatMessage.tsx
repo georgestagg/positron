@@ -13,6 +13,7 @@ import { IMarkdownString } from 'vs/base/common/htmlContent';
  */
 export interface ChatMessageProps {
 	markdown: IMarkdownString;
+	active: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export const ChatMessage = (props: React.PropsWithChildren<ChatMessageProps>) =>
 	}, [markdownRenderer, props.markdown]);
 
 	return <div className='positron-assistant-chat-message'>
-		<div ref={messageRef}></div>
+		{props.active && <div className='positron-assistant-message-spinner'></div>}
+		<div className='positron-assistant-message-content' ref={messageRef}></div>
 	</div>;
 };

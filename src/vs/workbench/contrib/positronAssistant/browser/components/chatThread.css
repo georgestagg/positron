@@ -8,3 +8,8 @@
 	overflow-y: auto;
 	padding: 0 10px;
 }
+
+/* Code style */
+.positron-assistant-chat-thread .monaco-tokenized-source {
+	font-family: monospace;
+}

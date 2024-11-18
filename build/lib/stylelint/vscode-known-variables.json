@@ -529,6 +529,7 @@
 		"--positronActionBar-textInputBackground",
 		"--positronActionBar-textInputSelectionBackground",
 		"--positronActionBar-textInputSelectionForeground",
+		"--vscode-positronAssistant-background",
 		"--vscode-positronAssistant-border",
 		"--vscode-positronAssistant-contrastBackground",
 		"--vscode-positronConsole-ansiBlack",
