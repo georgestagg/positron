@@ -31,6 +31,7 @@ import { IEditorService } from 'vs/workbench/services/editor/common/editorServic
 import { PositronAssistant } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistant';
 import { ILanguageService } from 'vs/editor/common/languages/language';
 import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
+import { IPositronAssistantService } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 
 export class PositronAssistantView
 	extends PositronViewPane
@@ -88,7 +89,8 @@ export class PositronAssistantView
 		@IClipboardService private readonly clipboardService: IClipboardService,
 		@INotificationService private readonly notificationService: INotificationService,
 		@IEditorService private readonly editorService: IEditorService,
-		@ILanguageService private readonly languageService: ILanguageService
+		@ILanguageService private readonly languageService: ILanguageService,
+		@IPositronAssistantService private readonly assistantService: IPositronAssistantService
 	) {
 		super(
 			options,
@@ -145,6 +147,7 @@ export class PositronAssistantView
 				notificationService={this.notificationService}
 				editorService={this.editorService}
 				markdownRenderer={markdownRenderer}
+				assistantService={this.assistantService}
 			/>
 		);
 	}

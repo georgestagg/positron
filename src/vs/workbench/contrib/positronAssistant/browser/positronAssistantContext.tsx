@@ -16,6 +16,7 @@ import { ILayoutService } from 'vs/platform/layout/browser/layoutService';
 import { INotificationService } from 'vs/platform/notification/common/notification';
 import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
+import { IPositronAssistantService } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 
 export interface PositronAssistantServices {
 	readonly commandService: ICommandService;
@@ -29,6 +30,7 @@ export interface PositronAssistantServices {
 	readonly clipboardService: IClipboardService;
 	readonly notificationService: INotificationService;
 	readonly editorService: IEditorService;
+	readonly assistantService: IPositronAssistantService;
 	readonly markdownRenderer: PositronAssistantMarkdownRenderer;
 }
 
