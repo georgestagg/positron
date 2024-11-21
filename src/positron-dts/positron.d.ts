@@ -1371,20 +1371,47 @@ declare module 'positron' {
 		 */
 		export interface Assistant {
 			/**
-			 * The name of the assistant.
+			 * The display name for the assistant.
 			 */
 			readonly name: string;
-		}
 
-		export interface AssistantProvider {
-			provideAssistant(token: vscode.CancellationToken): vscode.ProviderResult<Assistant>;
+			/**
+			 * An internal identifier, unique to each assistant.
+			 */
+			readonly identifier: string;
+
+			/**
+			 * Handle a chat request from the user.
+			 */
+			readonly chatResponseProvider: (request: ai.ChatRequest, context: ai.ChatContext,
+				stream: ai.ChatResponse, token: vscode.CancellationToken) => Thenable<void>;
 		}
 
 		/**
-		 * Register an assistant provider.
+		 * Register an assistant.
 		 */
-		export function registerAssistantProvider(
-			provider: AssistantProvider): vscode.Disposable;
+		export function registerAssistant(assistant: Assistant): vscode.Disposable;
+
+		/**
+		 * A chat request.
+		 */
+		export interface ChatRequest {
+			prompt: string;
+		}
+
+		/**
+		 * Additional context for a chat request.
+		 */
+		export interface ChatContext {
+			thread: Array<string>;
+		}
+
+		/**
+		 * Methods provided to stream content back to the user.
+		 */
+		export interface ChatResponse {
+			write: (content: string) => void;
+		}
 	}
 
 }

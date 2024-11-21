@@ -106,8 +106,12 @@ export interface ExtHostMethodsShape {
 	showQuestion(title: string, message: string, okButtonTitle: string, cancelButtonTitle: string): Promise<boolean>;
 }
 
+export interface MainThreadAiFeaturesShape {
+	$registerAssistant(id: string, name: string): void;
+	$unregisterAssistant(id: string): void;
+}
+
 export interface ExtHostAiFeaturesShape {
-	registerAssistantProvider(assistant: any): IDisposable;
 }
 
 /**
@@ -192,4 +196,5 @@ export const MainPositronContext = {
 	MainThreadConsoleService: createProxyIdentifier<MainThreadConsoleServiceShape>('MainThreadConsoleService'),
 	MainThreadContextKeyService: createProxyIdentifier<MainThreadContextKeyServiceShape>('MainThreadContextKeyService'),
 	MainThreadMethods: createProxyIdentifier<MainThreadMethodsShape>('MainThreadMethods'),
+	MainThreadAiFeatures: createProxyIdentifier<MainThreadAiFeaturesShape>('MainThreadAiFeatures'),
 };

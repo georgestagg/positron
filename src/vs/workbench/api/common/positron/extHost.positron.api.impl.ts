@@ -195,8 +195,8 @@ export function createPositronApiFactoryAndRegisterActors(accessor: ServicesAcce
 		};
 
 		const ai: typeof positron.ai = {
-			registerAssistantProvider(provider: positron.ai.AssistantProvider): vscode.Disposable {
-				return extHostAiFeatures.registerAssistantProvider(provider);
+			registerAssistant(provider: positron.ai.Assistant): vscode.Disposable {
+				return extHostAiFeatures.registerAssistant(provider);
 			}
 		};
 
