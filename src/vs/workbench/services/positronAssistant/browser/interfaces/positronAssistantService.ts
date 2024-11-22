@@ -6,9 +6,30 @@
 import { Event } from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import { CancellationToken } from 'vs/base/common/cancellation';
 
 // Create the decorator for the Positron assistant service (used in dependency injection).
 export const IPositronAssistantService = createDecorator<IPositronAssistantService>('positronAssistantService');
+
+export interface IPositronAssistantProvider {
+	name: string;
+	provideChatResponse(request: IPositronAssistantChatRequest, handler: (content: string) => void,
+		token: CancellationToken): Promise<void>;
+}
+
+export interface IPositronAssistantChatTask {
+	handler: (content: string) => void;
+}
+
+export interface IPositronAssistantChatMessage {
+	role: string;
+	content: string;
+}
+
+export interface IPositronAssistantChatRequest {
+	prompt: string;
+	history: string[];
+}
 
 /**
  * IPositronAssistantService interface.
@@ -24,17 +45,18 @@ export interface IPositronAssistantService {
 	/**
 	 * Assistants registered with the assistant service.
 	 */
-	registeredAssistants: Array<string>;
+	registeredAssistants: Map<string, string>;
 
 	/**
 	 * Register a new assistant.
 	 */
-	registerAssistant(id: string, name: string): IDisposable;
+	registerAssistant(id: string, provider: IPositronAssistantProvider): IDisposable;
 
 	/**
-	 * Unregister an existing assistant.
+	 * Provide a chat response for a specified chat request to the specified assistant.
 	 */
-	unregisterAssistant(id: string): void;
+	provideChatResponse(id: string, request: IPositronAssistantChatRequest,
+		handler: (text: string) => void, token: CancellationToken): void;
 
 	/**
 	 * Placeholder that gets called to "initialize" the PositronAssistantService.

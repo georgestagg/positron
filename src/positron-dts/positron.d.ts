@@ -1376,27 +1376,36 @@ declare module 'positron' {
 			readonly name: string;
 
 			/**
-			 * An internal identifier, unique to each assistant.
+			 * Assistant identifier.
 			 */
 			readonly identifier: string;
 
 			/**
 			 * Handle a chat request from the user.
 			 */
-			readonly chatResponseProvider: (request: ai.ChatRequest, context: ai.ChatContext,
-				stream: ai.ChatResponse, token: vscode.CancellationToken) => Thenable<void>;
+			readonly chatResponseProvider: (request: ai.ChatRequest, response: ai.ChatResponse,
+				token: vscode.CancellationToken) => Thenable<void>;
 		}
 
 		/**
 		 * Register an assistant.
 		 */
-		export function registerAssistant(assistant: Assistant): vscode.Disposable;
+		export function registerAssistant(extension: vscode.Extension<any>,
+			assistant: Assistant): vscode.Disposable;
 
 		/**
 		 * A chat request.
 		 */
 		export interface ChatRequest {
+			/**
+			 * User prompt.
+			 */
 			prompt: string;
+
+			/**
+			 * Histroy for this chat thread.
+			 */
+			history: string[];
 		}
 
 		/**
@@ -1410,6 +1419,9 @@ declare module 'positron' {
 		 * Methods provided to stream content back to the user.
 		 */
 		export interface ChatResponse {
+			/**
+			 * Write text content to the response stream.
+			 */
 			write: (content: string) => void;
 		}
 	}

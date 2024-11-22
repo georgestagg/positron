@@ -4,13 +4,14 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { IDisposable } from 'vs/base/common/lifecycle';
+import { CancellationToken } from 'vs/base/common/cancellation';
 import { ILanguageRuntimeInfo, ILanguageRuntimeMetadata, RuntimeCodeExecutionMode, RuntimeCodeFragmentStatus, RuntimeErrorBehavior, RuntimeState, ILanguageRuntimeMessage, ILanguageRuntimeExit, RuntimeExitReason, LanguageRuntimeSessionMode } from 'vs/workbench/services/languageRuntime/common/languageRuntimeService';
 import { createProxyIdentifier, IRPCProtocol, SerializableObjectWithBuffers } from 'vs/workbench/services/extensions/common/proxyIdentifier';
 import { MainContext, IWebviewPortMapping, WebviewExtensionDescription } from 'vs/workbench/api/common/extHost.protocol';
 import { URI, UriComponents } from 'vs/base/common/uri';
 import { IEditorContext } from 'vs/workbench/services/frontendMethods/common/editorContext';
 import { RuntimeClientType } from 'vs/workbench/api/common/positron/extHostTypes.positron';
-import { LanguageRuntimeDynState, RuntimeSessionMetadata } from 'positron';
+import { LanguageRuntimeDynState, RuntimeSessionMetadata, ai } from 'positron';
 
 // NOTE: This check is really to ensure that extHost.protocol is included by the TypeScript compiler
 // as a dependency of this module, and therefore that it's initialized first. This is to avoid a
@@ -109,9 +110,11 @@ export interface ExtHostMethodsShape {
 export interface MainThreadAiFeaturesShape {
 	$registerAssistant(id: string, name: string): void;
 	$unregisterAssistant(id: string): void;
+	$handleChatResponse(taskId: string, content: string): void;
 }
 
 export interface ExtHostAiFeaturesShape {
+	$provideChatResponse(id: string, request: ai.ChatRequest, taskId: string, token: CancellationToken): Promise<void>;
 }
 
 /**
