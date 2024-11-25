@@ -15,7 +15,7 @@ import { PositronAssistantView } from 'vs/workbench/contrib/positronAssistant/br
 
 const POSITRON_ASSISTANT_VIEW_ID = 'workbench.panel.positronAssistant';
 const positronAssistantViewIcon = registerIcon(
-	'positron-connections-view-icon',
+	'positron-assistant-view-icon',
 	Codicon.commentDiscussion,
 	nls.localize('positronAsssistantViewIcon', 'View icon of the Positron Assistant view.')
 );
@@ -24,7 +24,7 @@ const VIEW_CONTAINER = Registry.as<IViewContainersRegistry>(Extensions.ViewConta
 	{
 		id: POSITRON_ASSISTANT_VIEW_ID,
 		title: {
-			value: nls.localize('positron.connections', "Assistant"),
+			value: nls.localize('positron.assistant', "Assistant"),
 			original: 'Assistant'
 		},
 		icon: positronAssistantViewIcon,
