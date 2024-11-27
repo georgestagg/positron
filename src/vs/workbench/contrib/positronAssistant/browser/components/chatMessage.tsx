@@ -7,12 +7,12 @@ import 'vs/css!./chatMessage';
 import React, { useEffect, useRef } from 'react';
 import { usePositronAssistantContext } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
 import { IMarkdownString } from 'vs/base/common/htmlContent';
+import { IPositronAssistantChatMessage } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 
 /**
  * ChatMessage interface.
  */
-export interface ChatMessageProps {
-	markdown: IMarkdownString;
+export interface ChatMessageProps extends IPositronAssistantChatMessage {
 	active: boolean;
 }
 
@@ -27,11 +27,15 @@ export const ChatMessage = (props: React.PropsWithChildren<ChatMessageProps>) =>
 	const messageRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		messageRef.current?.replaceChildren(markdownRenderer.render(props.markdown).element);
-	}, [markdownRenderer, props.markdown]);
+		const markdown: IMarkdownString = {
+			value: props.content,
+		};
+		const render = markdownRenderer.render(markdown);
+		messageRef.current?.replaceChildren(render.element);
+	}, [markdownRenderer, props.content]);
 
-	return <div className='positron-assistant-chat-message'>
-		{props.active && <div className='positron-assistant-message-spinner'></div>}
-		<div className='positron-assistant-message-content' ref={messageRef}></div>
+	return <div className={`positron-assistant-chat-message role-${props.role}`}>
+		{props.active && <div className='message-slider'></div>}
+		<div className='message-content' ref={messageRef}></div>
 	</div>;
 };

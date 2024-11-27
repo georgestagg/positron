@@ -2054,20 +2054,36 @@ export const POSITRON_ASSISTANT_BACKGROUND_COLOR = registerColor('positronAssist
 	hcLight: 'sideBar.background'
 }, localize('positronAssistant.background', "Positron assistant background color."));
 
-// Positron assistant contrast background color.
-export const POSITRON_ASSISTANT_CONTRAST_BACKGROUND_COLOR = registerColor('positronAssistant.contrastBackground', {
-	dark: lighten(editorBackground, 0.2),
-	light: darken(editorBackground, 0.1),
+// Positron assistant input background color.
+export const POSITRON_ASSISTANT_INPUT_BACKGROUND_COLOR = registerColor('positronAssistant.inputBackground', {
+	dark: editorBackground,
+	light: editorBackground,
 	hcDark: editorBackground,
 	hcLight: editorBackground
-}, localize('positronAssistant.contrastBackground', "Positron assistant contrast background color."));
+}, localize('positronAssistant.inputBackground', "Positron assistant input background color."));
+
+// Positron assistant input foreground color.
+export const POSITRON_ASSISTANT_INPUT_FOREGROUND_COLOR = registerColor('positronAssistant.inputForeground', {
+	dark: editorForeground,
+	light: editorForeground,
+	hcDark: editorForeground,
+	hcLight: editorForeground
+}, localize('positronAssistant.inputForeground', "Positron assistant input foreground color."));
+
+// Positron assistant secondary text color.
+export const POSITRON_ASSISTANT_SECONDARY_COLOR = registerColor('positronAssistant.secondaryColor', {
+	dark: darken(editorForeground, 0.4),
+	light: lighten(editorForeground, 0.9),
+	hcDark: '#dddddd',
+	hcLight: '#333333'
+}, localize('positronAssistant.secondaryColor', "Positron assistant secondary text color."));
 
 // Positron assistant border color.
 export const POSITRON_ASSISTANT_BORDER_COLOR = registerColor('positronAssistant.border', {
 	dark: lighten(editorBackground, 0.3),
 	light: darken(editorBackground, 0.2),
-	hcDark: '#ff0000',
-	hcLight: '#ff0000'
+	hcDark: '#ffffff',
+	hcLight: '#000000'
 }, localize('positronAssistant.border', "Positron assistant border color."));
 
 // *************************************************************************************************

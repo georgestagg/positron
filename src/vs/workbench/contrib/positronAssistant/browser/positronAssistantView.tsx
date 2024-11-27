@@ -30,7 +30,6 @@ import { INotificationService } from 'vs/platform/notification/common/notificati
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { PositronAssistant } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistant';
 import { ILanguageService } from 'vs/editor/common/languages/language';
-import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
 import { IPositronAssistantService } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 
 export class PositronAssistantView
@@ -123,13 +122,6 @@ export class PositronAssistantView
 		this.positronAssistantContainer = DOM.$('.positron-assistant-container');
 		container.appendChild(this.positronAssistantContainer);
 
-		// Create a Markdown renderer that can be accessed through the PositronAssistant context
-		const markdownRenderer = new PositronAssistantMarkdownRenderer(
-			undefined,
-			this.languageService,
-			this.openerService
-		);
-
 		// Create the PositronReactRenderer for the PositronAssistant component and render it.
 		this.positronReactRenderer = new PositronReactRenderer(this.positronAssistantContainer);
 		this._register(this.positronReactRenderer);
@@ -141,12 +133,13 @@ export class PositronAssistantView
 				contextMenuService={this.contextMenuService}
 				hoverService={this.hoverService}
 				keybindingService={this.keybindingService}
+				openerService={this.openerService}
 				layoutService={this.layoutService}
 				reactComponentContainer={this}
 				clipboardService={this.clipboardService}
 				notificationService={this.notificationService}
 				editorService={this.editorService}
-				markdownRenderer={markdownRenderer}
+				languageService={this.languageService}
 				assistantService={this.assistantService}
 			/>
 		);

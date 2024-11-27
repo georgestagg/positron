@@ -6,11 +6,14 @@
 import React, { useEffect } from 'react';
 import 'vs/css!./positronAssistant';
 import { DisposableStore } from 'vs/base/common/lifecycle';
-import { PositronAssistantContextProvider, PositronAssistantServices } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
-import { ChatThread } from 'vs/workbench/contrib/positronAssistant/browser/components/chatThread';
-import { ChatInput } from 'vs/workbench/contrib/positronAssistant/browser/components/chatInput';
+import { PositronAssistantContextProvider } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
+import { ChatSession } from 'vs/workbench/contrib/positronAssistant/browser/components/chatSession';
+import { IReactComponentContainer } from 'vs/base/browser/positronReactRenderer';
+import { PositronAssistantServices } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantState';
 
-export interface PositronAssistantProps extends PositronAssistantServices { }
+export interface PositronAssistantProps extends PositronAssistantServices {
+	readonly reactComponentContainer: IReactComponentContainer;
+}
 
 export const PositronAssistant = (props: React.PropsWithChildren<PositronAssistantProps>) => {
 
@@ -30,8 +33,7 @@ export const PositronAssistant = (props: React.PropsWithChildren<PositronAssista
 	return (
 		<div className='positron-assistant'>
 			<PositronAssistantContextProvider {...props}>
-				<ChatThread></ChatThread>
-				<ChatInput></ChatInput>
+				<ChatSession></ChatSession>
 			</PositronAssistantContextProvider>
 		</div>
 	);

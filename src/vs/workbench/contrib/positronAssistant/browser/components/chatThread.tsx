@@ -4,10 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import 'vs/css!./chatThread';
-import { ChatResponse } from 'vs/workbench/contrib/positronAssistant/browser/components/chatResponse';
-import { ChatMessage } from 'vs/workbench/contrib/positronAssistant/browser/components/chatMessage';
+import React, { useEffect, useRef } from 'react';
 
-import React from 'react';
 /**
  * ChatThread interface.
  */
@@ -19,8 +17,30 @@ export interface ChatThreadProps { }
  * @returns The rendered component.
  */
 export const ChatThread = (props: React.PropsWithChildren<ChatThreadProps>) => {
-	return <div className='positron-assistant-chat-thread'>
-		<ChatMessage markdown={{ value: `foo bar baz` }}></ChatMessage>
-		<ChatResponse markdown={{ value: `one one two three five eight` }}></ChatResponse>
+	const threadRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	// Autoscroll the messages thread when already near the bottom and content updates
+	useEffect(() => {
+		const onHeightChange = () => {
+			const thread = threadRef.current;
+			if (thread && thread.scrollTop + thread.clientHeight > thread.scrollHeight - 100) {
+				thread.scrollTop = thread.scrollHeight;
+			}
+		};
+
+		const resizeObserver = new ResizeObserver(onHeightChange);
+		if (containerRef.current) {
+			resizeObserver.observe(containerRef.current);
+		}
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, []);
+
+	return <div ref={threadRef} className='positron-assistant-chat-thread'>
+		<div ref={containerRef}>
+			{props.children}
+		</div>
 	</div>;
 };

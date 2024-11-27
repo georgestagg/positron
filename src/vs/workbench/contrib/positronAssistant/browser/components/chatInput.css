@@ -7,7 +7,7 @@
 	display: flex;
 	flex-direction: column;
 	border-radius: 5px;
-	background: var(--vscode-positronAssistant-contrastBackground);
+	background: var(--vscode-positronAssistant-inputBackground);
 	border: 1px solid var(--vscode-positronAssistant-border);
 	margin: 0 18px 10px 10px;
 	position: relative;
@@ -17,45 +17,97 @@
 	border: 1px solid var(--vscode-focusBorder);
 }
 
-.positron-assistant-chat-input .editable {
-	min-height: 65px;
-	max-height: 390px;
+/* Chat editor component */
+.positron-assistant-chat-editor {
 	margin: 10px 10px 0 10px;
-	overflow-y: auto;
+	position: relative;
+	user-select: text;
 }
 
-.positron-assistant-chat-input .editable:focus {
+.positron-assistant-editor-placeholder {
+	position: absolute;
+	top: 0;
+	left: 0;
+	color: var(--vscode-positronAssistant-secondaryColor);
+	pointer-events: none;
+	user-select: none;
+}
+
+.positron-assistant-chat-editor > .editor-editable {
+	color: var(--vscode-positronAssistant-inputForeground);
+	min-height: 37px;
+	max-height: 235px;
+	overflow-y: auto;
+	resize: none;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	user-select: text;
+	white-space: pre-wrap;
+}
+
+.positron-assistant-chat-editor > .editor-editable:focus {
 	outline: none;
 }
 
+/* Chat input bottom toolbar */
 .positron-assistant-chat-input .chat-bottom-toolbar {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	padding: 0 10px;
-	font-size: 80%;
+	margin: 5px;
+	font-size: 0.8rem;
 }
 
-.positron-assistant-chat-input .chat-bottom-toolbar select {
-	outline: none;
-	background: none;
+/* Chat assistant selector */
+.positron-assistant-selector {
+	color: var(--vscode-positronAssistant-inputForeground);
+	opacity: .6;
+	transition: opacity 0.2s;
+}
+
+.positron-assistant-selector:hover,
+.positron-assistant-selector:focus {
+	opacity: 1;
+}
+
+/* Chat top toolbar */
+.positron-assistant-chat-input .chat-top-toolbar {
+	position: absolute;
+	font-size: 0.8rem;
+	top: -36px;
+	align-self: center;
+}
+
+/* Chat input buttons */
+.positron-assistant-chat-input button {
 	border: none;
-}
-
-.positron-assistant-chat-input .chat-bottom-toolbar select:hover {
-	background: var(--positronActionBar-hoverBackground);
-}
-
-.positron-assistant-chat-input .chat-bottom-toolbar select:focus {
 	outline: none;
+	font: inherit;
+	cursor: pointer;
+	background: none;
+}
+
+.positron-assistant-chat-input button:hover,
+.positron-assistant-chat-input button:focus {
+	opacity: 1;
+	outline: none !important;
+}
+
+.positron-assistant-chat-input button:focus-visible {
+	outline: 1px solid var(--vscode-focusBorder) !important;
+}
+
+button.positron-assistant-chat-submit {
+	border-radius: 4px;
+	color: var(--vscode-positronAssistant-inputForeground);
+	opacity: .6;
+	transition: opacity 0.2s;
 }
 
 button.positron-assistant-chat-stop {
-	width: 100%;
-	max-width: 100px;
-	align-self: center;
-	position: absolute;
-	font-size: 85%;
-	height: 20px;
-	top: -20px;
+	padding: 4px;
+	border-radius: 4px;
+	color: var(--vscode-positronAssistant-inputForeground);
+	background: var(--vscode-positronAssistant-inputBackground);
+	border: 1px solid var(--vscode-positronAssistant-border);
 }

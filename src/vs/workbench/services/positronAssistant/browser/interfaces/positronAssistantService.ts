@@ -28,7 +28,7 @@ export interface IPositronAssistantChatMessage {
 
 export interface IPositronAssistantChatRequest {
 	prompt: string;
-	history: string[];
+	history: IPositronAssistantChatMessage[];
 }
 
 /**
@@ -56,7 +56,7 @@ export interface IPositronAssistantService {
 	 * Provide a chat response for a specified chat request to the specified assistant.
 	 */
 	provideChatResponse(id: string, request: IPositronAssistantChatRequest,
-		handler: (text: string) => void, token: CancellationToken): void;
+		handler: (text: string) => void, token: CancellationToken): Promise<void>;
 
 	/**
 	 * Placeholder that gets called to "initialize" the PositronAssistantService.

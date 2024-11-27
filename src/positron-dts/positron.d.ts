@@ -1394,6 +1394,21 @@ declare module 'positron' {
 			assistant: Assistant): vscode.Disposable;
 
 		/**
+		 * A chat message.
+		 */
+		export interface ChatMessage {
+			/**
+			 * Role of message author.
+			 */
+			role: string;
+
+			/**
+			 * Message content.
+			 */
+			content: string;
+		}
+
+		/**
 		 * A chat request.
 		 */
 		export interface ChatRequest {
@@ -1405,14 +1420,7 @@ declare module 'positron' {
 			/**
 			 * Histroy for this chat thread.
 			 */
-			history: string[];
-		}
-
-		/**
-		 * Additional context for a chat request.
-		 */
-		export interface ChatContext {
-			thread: Array<string>;
+			history: ChatMessage[];
 		}
 
 		/**

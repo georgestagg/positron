@@ -3,14 +3,11 @@
  *  Licensed under the Elastic License 2.0. See LICENSE.txt for license information.
  *--------------------------------------------------------------------------------------------*/
 
-.positron-assistant-container {
-	height: 100%;
-	background: var(--vscode-positronAssistant-background);
+.positron-dropdown {
+	display: flex;
+	flex-direction: row;
 }
 
-.positron-assistant,
-.positron-assistant .positron-assistant-chat-session {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
+.positron-dropdown-label {
+	margin-right: 4px;
 }
