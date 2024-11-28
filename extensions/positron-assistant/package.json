@@ -1,0 +1,74 @@
+{
+	"name": "positron-assistant",
+  "displayName": "Assistant",
+  "description": "Positron Assistant",
+	"version": "0.0.1",
+	"publisher": "vscode",
+	"engines": {
+		"vscode": "^1.65.0"
+	},
+	"categories": [
+		"Other"
+	],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+	"main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Positron Assistant",
+      "properties": {
+        "positron.assistant.models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "apiKey": {
+                "type": "string",
+                "description": "API key for the model provider"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the model"
+              },
+              "model": {
+                "type": "string",
+                "description": "The specific model to use"
+              },
+              "provider": {
+                "type": "string",
+                "enum": ["openai", "anthropic", "echo"],
+                "description": "The AI model provider"
+              }
+            },
+            "required": ["name", "provider"],
+            "additionalProperties": false
+          },
+          "default": [
+            {
+              "apiKey": "",
+              "name": "default",
+              "model": "gpt-4o",
+              "provider": "openai"
+            }
+          ],
+          "description": "Array of AI model configurations"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts"
+  },
+	"devDependencies": {
+		"@eslint/js": "^9.13.0",
+		"@stylistic/eslint-plugin": "^2.9.0",
+		"@types/node": "^20",
+		"@types/vscode": "^1.73.0",
+		"eslint": "^9.13.0",
+		"typescript": "^5.6.2",
+		"typescript-eslint": "^8.11.0"
+	}
+}

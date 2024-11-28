@@ -31,6 +31,7 @@ const compilations = [
 	// --- Start Positron ---
 	'extensions/kallichore-adapter/tsconfig.json',
 	'extensions/open-remote-ssh/tsconfig.json',
+	'extensions/positron-assistant/tsconfig.json',
 	'extensions/positron-code-cells/tsconfig.json',
 	'extensions/positron-connections/tsconfig.json',
 	'extensions/positron-duckdb/tsconfig.json',
