@@ -49,8 +49,8 @@ export class ExtHostAiFeatures implements extHostProtocol.ExtHostAiFeaturesShape
 		this._proxy.$registerAssistant(id, assistant.name);
 
 		return new Disposable(() => {
-			this._proxy.$unregisterAssistant(assistant.identifier);
-			this._registeredAssistants.delete(assistant.identifier);
+			this._proxy.$unregisterAssistant(id);
+			this._registeredAssistants.delete(id);
 		});
 	}
 
