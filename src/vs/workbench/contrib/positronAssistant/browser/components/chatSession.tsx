@@ -3,7 +3,7 @@
  *  Licensed under the Elastic License 2.0. See LICENSE.txt for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { ChatThread } from 'vs/workbench/contrib/positronAssistant/browser/components/chatThread';
 import { ChatInput } from 'vs/workbench/contrib/positronAssistant/browser/components/chatInput';
@@ -29,17 +29,7 @@ export type ChatSessionActiveState = {
  */
 export const ChatSession = (props: ChatSessionProps) => {
 	const positronAssistantContext = usePositronAssistantContext();
-	const { assistantService, positronAssistants } = positronAssistantContext;
-
-	// Ensure that we're always selecting a registered assistant
-	const [selectedAssistant, setSelectedAssistant] = useState<string | undefined>();
-	useEffect(() => {
-		if (selectedAssistant && positronAssistants.has(selectedAssistant)) {
-			return;
-		}
-		setSelectedAssistant(positronAssistants.keys().next().value);
-	}, [positronAssistants, selectedAssistant]);
-
+	const { assistantService, selectedAssistant } = positronAssistantContext;
 
 	/**
 	 * TODO: This state should be stored in the PositronAssistantState context, and/or reduced for
@@ -89,11 +79,6 @@ export const ChatSession = (props: ChatSessionProps) => {
 		<ChatThread>
 			{messageElements}
 		</ChatThread>
-		<ChatInput
-			onSubmit={provideResponse}
-			assistant={selectedAssistant}
-			setAssistant={setSelectedAssistant}
-			activeState={activeState}
-		></ChatInput>
+		<ChatInput onSubmit={provideResponse} activeState={activeState} />
 	</div>;
 };

@@ -40,17 +40,35 @@ export interface IPositronAssistantService {
 	 */
 	readonly _serviceBrand: undefined;
 
+	/**
+	 * Notifies subscribers when a new assistant has been registered.
+	 */
 	readonly onDidRegisterAssistant: Event<string>;
+
+	/**
+	 * Notifies subscribers when a new assistant has been selected.
+	 */
+	readonly onDidSelectAssistant: Event<string>;
 
 	/**
 	 * Assistants registered with the assistant service.
 	 */
-	registeredAssistants: Map<string, string>;
+	readonly registeredAssistants: Map<string, string>;
+
+	/**
+	 * The ID of the currently selected assistant.
+	 */
+	readonly selectedAssistant: string | null;
 
 	/**
 	 * Register a new assistant.
 	 */
 	registerAssistant(id: string, provider: IPositronAssistantProvider): IDisposable;
+
+	/**
+	 * Select an assistant by id.
+	 */
+	selectAssistant(id: string): void;
 
 	/**
 	 * Provide a chat response for a specified chat request to the specified assistant.

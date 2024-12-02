@@ -42,7 +42,8 @@ export interface PositronAssistantServices {
 
 export interface PositronAssistantState extends PositronAssistantServices {
 	readonly markdownRenderer: PositronAssistantMarkdownRenderer;
-	readonly positronAssistants: Map<string, string>;
+	readonly availableAssistants: Map<string, string>;
+	readonly selectedAssistant: string | null;
 }
 
 /**
@@ -50,7 +51,10 @@ export interface PositronAssistantState extends PositronAssistantServices {
  * @returns The hook.
  */
 export const usePositronAssistantState = (services: PositronAssistantServices): PositronAssistantState => {
-	const [positronAssistants, setPositronAssistants] = useState<Map<string, string>>(
+	const [selectedAssistant, setSelectedAssistant] = useState<string | null>(
+		services.assistantService.selectedAssistant
+	);
+	const [availableAssistants, setAvailableAssistants] = useState<Map<string, string>>(
 		services.assistantService.registeredAssistants
 	);
 
@@ -69,7 +73,12 @@ export const usePositronAssistantState = (services: PositronAssistantServices): 
 
 		// Update the list of assistants as extensions are loaded
 		disposableStore.add(services.assistantService.onDidRegisterAssistant(() => {
-			setPositronAssistants(services.assistantService.registeredAssistants);
+			setAvailableAssistants(services.assistantService.registeredAssistants);
+		}));
+
+		// Update the selected assistant
+		disposableStore.add(services.assistantService.onDidSelectAssistant(() => {
+			setSelectedAssistant(services.assistantService.selectedAssistant);
 		}));
 
 		return () => disposableStore.dispose();
@@ -78,6 +87,7 @@ export const usePositronAssistantState = (services: PositronAssistantServices): 
 	return {
 		...services,
 		markdownRenderer,
-		positronAssistants,
+		availableAssistants,
+		selectedAssistant,
 	};
 };
