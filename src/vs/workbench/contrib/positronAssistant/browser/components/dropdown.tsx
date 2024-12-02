@@ -5,7 +5,7 @@
 
 import 'vs/css!./dropdown';
 import React, { useRef } from 'react';
-import { Action, IAction } from 'vs/base/common/actions';
+import { IAction } from 'vs/base/common/actions';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 
 /**
@@ -13,9 +13,8 @@ import { IContextMenuService } from 'vs/platform/contextview/browser/contextView
  */
 export interface DropdownProps {
 	contextMenuService: IContextMenuService;
-	items: Map<string, string>;
-	onChange: (id: string) => void;
-	selected?: string;
+	actions: IAction[];
+	selected?: string | null;
 	className?: string;
 }
 
@@ -26,21 +25,16 @@ export interface DropdownProps {
  */
 export const DropDown = (props: DropdownProps) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const items = Array.from(props.items.entries());
-	const itemLabel = props.selected ? props.items.get(props.selected) : undefined;
-
-	const actions: IAction[] = items.map(([id, label]) => {
-		return new Action(id, label, undefined, true, () => {
-			props.onChange(id);
-		});
-	});
+	const itemLabel = props.selected ? props.actions.find((v) => {
+		return v.id === props.selected;
+	})?.label : undefined;
 
 	const handleClick = () => {
 		const div = ref.current;
 		if (div) {
 			props.contextMenuService.showContextMenu({
 				getAnchor: () => div,
-				getActions: () => actions,
+				getActions: () => props.actions,
 			});
 		}
 	};

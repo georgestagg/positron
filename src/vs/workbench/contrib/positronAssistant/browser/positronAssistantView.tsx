@@ -31,6 +31,7 @@ import { IEditorService } from 'vs/workbench/services/editor/common/editorServic
 import { PositronAssistant } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistant';
 import { ILanguageService } from 'vs/editor/common/languages/language';
 import { IPositronAssistantService } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
+import { IPreferencesService } from 'vs/workbench/services/preferences/common/preferences';
 
 export class PositronAssistantView
 	extends PositronViewPane
@@ -73,23 +74,24 @@ export class PositronAssistantView
 
 	constructor(
 		options: IViewPaneOptions,
+		@IClipboardService private readonly clipboardService: IClipboardService,
+		@ICommandService private readonly commandService: ICommandService,
 		@IConfigurationService configurationService: IConfigurationService,
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IContextMenuService contextMenuService: IContextMenuService,
+		@IEditorService private readonly editorService: IEditorService,
 		@IHoverService hoverService: IHoverService,
 		@IInstantiationService instantiationService: IInstantiationService,
 		@IKeybindingService keybindingService: IKeybindingService,
+		@ILanguageService private readonly languageService: ILanguageService,
+		@ILayoutService private readonly layoutService: ILayoutService,
+		@INotificationService private readonly notificationService: INotificationService,
 		@IOpenerService openerService: IOpenerService,
+		@IPositronAssistantService private readonly assistantService: IPositronAssistantService,
+		@IPreferencesService private readonly preferencesService: IPreferencesService,
 		@ITelemetryService telemetryService: ITelemetryService,
 		@IThemeService themeService: IThemeService,
 		@IViewDescriptorService viewDescriptorService: IViewDescriptorService,
-		@ICommandService private readonly commandService: ICommandService,
-		@ILayoutService private readonly layoutService: ILayoutService,
-		@IClipboardService private readonly clipboardService: IClipboardService,
-		@INotificationService private readonly notificationService: INotificationService,
-		@IEditorService private readonly editorService: IEditorService,
-		@ILanguageService private readonly languageService: ILanguageService,
-		@IPositronAssistantService private readonly assistantService: IPositronAssistantService
 	) {
 		super(
 			options,
@@ -127,20 +129,21 @@ export class PositronAssistantView
 		this._register(this.positronReactRenderer);
 		this.positronReactRenderer.render(
 			<PositronAssistant
-				configurationService={this.configurationService}
+				assistantService={this.assistantService}
+				clipboardService={this.clipboardService}
 				commandService={this.commandService}
+				configurationService={this.configurationService}
 				contextKeyService={this.contextKeyService}
 				contextMenuService={this.contextMenuService}
+				editorService={this.editorService}
 				hoverService={this.hoverService}
 				keybindingService={this.keybindingService}
-				openerService={this.openerService}
-				layoutService={this.layoutService}
-				reactComponentContainer={this}
-				clipboardService={this.clipboardService}
-				notificationService={this.notificationService}
-				editorService={this.editorService}
 				languageService={this.languageService}
-				assistantService={this.assistantService}
+				layoutService={this.layoutService}
+				notificationService={this.notificationService}
+				openerService={this.openerService}
+				preferencesService={this.preferencesService}
+				reactComponentContainer={this}
 			/>
 		);
 	}

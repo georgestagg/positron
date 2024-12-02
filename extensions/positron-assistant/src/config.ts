@@ -14,11 +14,5 @@ export interface ModelConfig {
 
 export function getModelConfigurations(): ModelConfig[] {
 	const config = vscode.workspace.getConfiguration('positron.assistant');
-	const models = config.get<ModelConfig[]>('models');
-
-	if (!models || models.length === 0) {
-		throw new Error('No model configurations found');
-	}
-
-	return models;
+	return config.get<ModelConfig[]>('models') || [];
 }

@@ -20,22 +20,24 @@ import { IPositronAssistantService } from 'vs/workbench/services/positronAssista
 import { IOpenerService } from 'vs/platform/opener/common/opener';
 import { ILanguageService } from 'vs/editor/common/languages/language';
 import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
+import { IPreferencesService } from 'vs/workbench/services/preferences/common/preferences';
 
 export interface PositronAssistantServices {
+	readonly assistantService: IPositronAssistantService;
+	readonly clipboardService: IClipboardService;
 	readonly commandService: ICommandService;
 	readonly configurationService: IConfigurationService;
 	readonly contextKeyService: IContextKeyService;
 	readonly contextMenuService: IContextMenuService;
-	readonly hoverService: IHoverService;
-	readonly openerService: IOpenerService;
-	readonly keybindingService: IKeybindingService;
-	readonly reactComponentContainer: IReactComponentContainer;
-	readonly layoutService: ILayoutService;
-	readonly clipboardService: IClipboardService;
-	readonly notificationService: INotificationService;
 	readonly editorService: IEditorService;
-	readonly assistantService: IPositronAssistantService;
+	readonly hoverService: IHoverService;
+	readonly keybindingService: IKeybindingService;
 	readonly languageService: ILanguageService;
+	readonly layoutService: ILayoutService;
+	readonly notificationService: INotificationService;
+	readonly openerService: IOpenerService;
+	readonly preferencesService: IPreferencesService;
+	readonly reactComponentContainer: IReactComponentContainer;
 }
 
 export interface PositronAssistantState extends PositronAssistantServices {

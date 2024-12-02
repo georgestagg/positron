@@ -44,14 +44,6 @@
             "required": ["name", "provider"],
             "additionalProperties": false
           },
-          "default": [
-            {
-              "apiKey": "",
-              "name": "default",
-              "model": "gpt-4o",
-              "provider": "openai"
-            }
-          ],
           "description": "Array of AI model configurations"
         }
       }

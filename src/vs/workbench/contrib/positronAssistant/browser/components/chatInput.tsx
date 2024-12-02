@@ -8,14 +8,50 @@ import React, { useState, useRef } from 'react';
 import { usePositronAssistantContext } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
 import { ChatSessionActiveState } from 'vs/workbench/contrib/positronAssistant/browser/components/chatSession';
 import { DropDown } from 'vs/workbench/contrib/positronAssistant/browser/components/dropdown';
+import { Action, Separator } from 'vs/base/common/actions';
+
+const ChatAssistantSelector = () => {
+	const positronAssistantContext = usePositronAssistantContext();
+	const {
+		assistantService,
+		availableAssistants,
+		contextMenuService,
+		preferencesService,
+		selectedAssistant,
+	} = positronAssistantContext;
+
+	/**
+	 * Create a set of actions to select an assistant from the registered list.
+	 * If there are no assistants yet, just show an informative default label.
+	 */
+	const assistantOptions = selectedAssistant ? Array.from(availableAssistants, ([id, label]) => {
+		return new Action(id, label, undefined, true, () => assistantService.selectAssistant(id));
+	}) : [new Action('default', 'Select Assistant', undefined, true, () => { })];
+
+	const actions = [
+		...assistantOptions,
+		new Separator(),
+		new Action('configure', 'Configure...', undefined, true, () => {
+			preferencesService.openSettings({
+				query: 'positron.assistant.models',
+				openToSide: false,
+			});
+		}),
+	];
+
+	return <DropDown
+		className='positron-assistant-selector'
+		contextMenuService={contextMenuService}
+		actions={actions}
+		selected={selectedAssistant || 'default'}
+	/>;
+};
 
 /**
  * ChatInput interface.
  */
 export interface ChatInputProps {
 	onSubmit: (prompt: string) => void;
-	assistant: string | undefined;
-	setAssistant: React.Dispatch<React.SetStateAction<string | undefined>>;
 	activeState: ChatSessionActiveState;
 }
 
@@ -25,8 +61,6 @@ export interface ChatInputProps {
  * @returns The rendered component.
  */
 export const ChatInput = (props: ChatInputProps) => {
-	const positronAssistantContext = usePositronAssistantContext();
-	const { positronAssistants, contextMenuService } = positronAssistantContext;
 	const editorRef = useRef<HTMLInputElement>(null);
 	const [input, setInput] = useState<string>('');
 
@@ -138,13 +172,7 @@ export const ChatInput = (props: ChatInputProps) => {
 			</div>}
 		</div>
 		<div className='chat-bottom-toolbar'>
-			<DropDown
-				className='positron-assistant-selector'
-				contextMenuService={contextMenuService}
-				items={positronAssistants}
-				selected={props.assistant}
-				onChange={(id) => props.setAssistant(id)}
-			/>
+			<ChatAssistantSelector />
 			<button
 				className='positron-assistant-chat-submit'
 				onClick={(e) => handleSubmit()}
