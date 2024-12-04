@@ -21,6 +21,7 @@ import { IOpenerService } from 'vs/platform/opener/common/opener';
 import { ILanguageService } from 'vs/editor/common/languages/language';
 import { PositronAssistantMarkdownRenderer } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantMarkdownRenderer';
 import { IPreferencesService } from 'vs/workbench/services/preferences/common/preferences';
+import { IPositronAssistantChatSession } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantChatSession';
 
 export interface PositronAssistantServices {
 	readonly assistantService: IPositronAssistantService;
@@ -44,6 +45,7 @@ export interface PositronAssistantState extends PositronAssistantServices {
 	readonly markdownRenderer: PositronAssistantMarkdownRenderer;
 	readonly availableAssistants: Map<string, string>;
 	readonly selectedAssistant: string | null;
+	readonly selectedChatSession: IPositronAssistantChatSession;
 }
 
 /**
@@ -51,11 +53,17 @@ export interface PositronAssistantState extends PositronAssistantServices {
  * @returns The hook.
  */
 export const usePositronAssistantState = (services: PositronAssistantServices): PositronAssistantState => {
+	const { assistantService } = services;
+
 	const [selectedAssistant, setSelectedAssistant] = useState<string | null>(
-		services.assistantService.selectedAssistant
+		assistantService.selectedAssistant
 	);
 	const [availableAssistants, setAvailableAssistants] = useState<Map<string, string>>(
-		services.assistantService.registeredAssistants
+		assistantService.registeredAssistants
+	);
+
+	const [selectedChatSession, setSelectedChatSession] = useState<IPositronAssistantChatSession>(
+		assistantService.selectedChatSession
 	);
 
 	// Create a Markdown renderer that can be accessed through the PositronAssistant context
@@ -81,6 +89,11 @@ export const usePositronAssistantState = (services: PositronAssistantServices): 
 			setSelectedAssistant(services.assistantService.selectedAssistant);
 		}));
 
+		// Update the selected chat session
+		disposableStore.add(services.assistantService.onDidSelectChatSession((session) => {
+			setSelectedChatSession(session);
+		}));
+
 		return () => disposableStore.dispose();
 	}, [services.assistantService]);
 
@@ -89,5 +102,6 @@ export const usePositronAssistantState = (services: PositronAssistantServices): 
 		markdownRenderer,
 		availableAssistants,
 		selectedAssistant,
+		selectedChatSession,
 	};
 };

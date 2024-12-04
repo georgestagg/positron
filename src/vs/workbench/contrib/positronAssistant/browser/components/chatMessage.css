@@ -13,6 +13,7 @@
 .positron-assistant-chat-message.role-user {
 	border-radius: 5px;
 	border: 1px solid var(--vscode-positronAssistant-border);
+	background: var(--vscode-positronAssistant-inputBackground);
 }
 
 .positron-assistant-chat-message.role-user .message-content {
@@ -50,7 +51,7 @@
 		top: 2px;
 		width: calc(100% - 4px);
 		height: calc(100% - 4px);
-		background: var(--vscode-positronAssistant-background);
+		background: var(--vscode-positronAssistant-inputBackground);
 		border-radius: 3px;
 	}
 }

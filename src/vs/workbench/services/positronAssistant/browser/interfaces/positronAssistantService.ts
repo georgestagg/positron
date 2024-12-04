@@ -7,6 +7,7 @@ import { Event } from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { CancellationToken } from 'vs/base/common/cancellation';
+import { IPositronAssistantChatSession } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantChatSession';
 
 // Create the decorator for the Positron assistant service (used in dependency injection).
 export const IPositronAssistantService = createDecorator<IPositronAssistantService>('positronAssistantService');
@@ -51,9 +52,25 @@ export interface IPositronAssistantService {
 	readonly onDidSelectAssistant: Event<string>;
 
 	/**
-	 * Assistants registered with the assistant service.
+	 * Notifies subscribers when an existing chat session has been selected. A `null` ID represents
+	 * deselection.
+	 */
+	readonly onDidSelectChatSession: Event<IPositronAssistantChatSession>;
+
+	/**
+	 * Names of assistants registered with the assistant service.
 	 */
 	readonly registeredAssistants: Map<string, string>;
+
+	/**
+	 * Provider functions for assistants registered with the assistant service.
+	 */
+	readonly registeredProviders: Map<string, IPositronAssistantProvider>;
+
+	/**
+	 * Stored sessions.
+	 */
+	readonly chatSessions: Map<string, IPositronAssistantChatSession>;
 
 	/**
 	 * The ID of the currently selected assistant.
@@ -61,20 +78,35 @@ export interface IPositronAssistantService {
 	readonly selectedAssistant: string | null;
 
 	/**
+	 * The ID of the currently selected chat session.
+	 */
+	readonly selectedChatSession: IPositronAssistantChatSession;
+
+
+	/**
 	 * Register a new assistant.
 	 */
 	registerAssistant(id: string, provider: IPositronAssistantProvider): IDisposable;
 
 	/**
-	 * Select an assistant by id.
+	 * Select an assistant by ID.
 	 */
 	selectAssistant(id: string): void;
 
 	/**
-	 * Provide a chat response for a specified chat request to the specified assistant.
+	 * Select a chat session by ID.
 	 */
-	provideChatResponse(id: string, request: IPositronAssistantChatRequest,
-		handler: (text: string) => void, token: CancellationToken): Promise<void>;
+	selectChatSession(id: string | null): void;
+
+	/**
+	 * Start a new chat session.
+	 */
+	newChatSession(): { id: string; session: IPositronAssistantChatSession };
+
+	/**
+	 * Provide a chat response for the currently selected assistant and chat session.
+	 */
+	provideChatResponse(): Promise<void>;
 
 	/**
 	 * Placeholder that gets called to "initialize" the PositronAssistantService.

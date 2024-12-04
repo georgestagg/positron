@@ -4,11 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { IDisposable, Disposable, toDisposable } from 'vs/base/common/lifecycle';
-import { IPositronAssistantService, IPositronAssistantProvider, IPositronAssistantChatRequest } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
+import { IPositronAssistantService, IPositronAssistantProvider } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 import { InstantiationType, registerSingleton } from 'vs/platform/instantiation/common/extensions';
 import { ILogService } from 'vs/platform/log/common/log';
 import { Emitter } from 'vs/base/common/event';
-import { CancellationToken } from 'vs/base/common/cancellation';
+import { IPositronAssistantChatSession } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantChatSession';
+import { PositronAssistantChatSession, PositronAssistantNullChatSession } from 'vs/workbench/services/positronAssistant/browser/positronAssistantChatSession';
+import { generateUuid } from 'vs/base/common/uuid';
 
 /**
  * PositronAssistantService class.
@@ -17,7 +19,9 @@ class PositronAssistantService extends Disposable implements IPositronAssistantS
 	declare readonly _serviceBrand: undefined;
 
 	private readonly _providers = new Map<string, IPositronAssistantProvider>();
-	private _selectedAssistant: string | null;
+	private readonly _chatSessions = new Map<string, IPositronAssistantChatSession>();
+	private _selectedAssistant: string | null = null;
+	private _selectedChatSessionId: string | null = null;
 
 	// Event emitters
 	private readonly _onDidRegisterAssistantEmitter = this._register(new Emitter<string>);
@@ -26,8 +30,14 @@ class PositronAssistantService extends Disposable implements IPositronAssistantS
 	private readonly _onDidSelectAssistantEmitter = this._register(new Emitter<string>);
 	readonly onDidSelectAssistant = this._onDidSelectAssistantEmitter.event;
 
+	private readonly _onDidSelectChatSession = this._register(new Emitter<IPositronAssistantChatSession>);
+	readonly onDidSelectChatSession = this._onDidSelectChatSession.event;
+
+	// Null chat session, used when no chat session has been selected by the front end
+	private readonly _nullChatSession = this._register(new PositronAssistantNullChatSession(this));
+
 	constructor(
-		@ILogService private readonly _logService: ILogService
+		@ILogService private readonly _logService: ILogService,
 	) {
 		super();
 		this._selectedAssistant = null;
@@ -54,12 +64,31 @@ class PositronAssistantService extends Disposable implements IPositronAssistantS
 		this._onDidSelectAssistantEmitter.fire(id);
 	}
 
+	selectChatSession(id: string | null) {
+		if (id && !this._chatSessions.has(id)) {
+			throw new Error(`Can't find chat session with ID: \`${id}\`."`);
+		}
+		this._selectedChatSessionId = id;
+		this._onDidSelectChatSession.fire(this.selectedChatSession);
+	}
+
+	newChatSession(): { id: string; session: IPositronAssistantChatSession } {
+		const id = generateUuid();
+		const session = this._register(new PositronAssistantChatSession(this));
+		this._chatSessions.set(id, session);
+		return { id, session };
+	}
+
 	get registeredAssistants(): Map<string, string> {
 		const assistants = new Map<string, string>();
 		this._providers.forEach((provider, id) => {
 			assistants.set(id, provider.name);
 		});
 		return assistants;
+	}
+
+	get registeredProviders() {
+		return this._providers;
 	}
 
 	get selectedAssistant(): string | null {
@@ -73,9 +102,35 @@ class PositronAssistantService extends Disposable implements IPositronAssistantS
 		return this._selectedAssistant;
 	}
 
-	async provideChatResponse(id: string, request: IPositronAssistantChatRequest,
-		handler: (content: string) => void, token: CancellationToken) {
-		return this._providers.get(id)?.provideChatResponse(request, handler, token);
+	get selectedChatSession(): IPositronAssistantChatSession {
+		const id = this._selectedChatSessionId;
+		if (id && this._chatSessions.has(id)) {
+			return this._chatSessions.get(id)!;
+		} else {
+			return this._nullChatSession;
+		}
+	}
+
+	get chatSessions() {
+		return this._chatSessions;
+	}
+
+	provideChatResponse(): Promise<void> {
+		let id = this._selectedChatSessionId;
+		let session = this.selectedChatSession;
+		if (!id) {
+			const newChat = this.newChatSession();
+			this.selectChatSession(newChat.id);
+
+			// Copy prompt to new session, clear the null session prompt.
+			newChat.session.prompt = session.prompt;
+			session.prompt = '';
+
+			id = newChat.id;
+			session = newChat.session;
+		}
+
+		return session.provideChatResponse();
 	}
 
 	initialize(): void { }

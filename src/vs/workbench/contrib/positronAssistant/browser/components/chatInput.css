@@ -31,9 +31,14 @@
 	color: var(--vscode-positronAssistant-secondaryColor);
 	pointer-events: none;
 	user-select: none;
+	display: none;
 }
 
-.positron-assistant-chat-editor > .editor-editable {
+.chat-editor-editable:empty + .positron-assistant-editor-placeholder {
+	display: block;
+}
+
+.positron-assistant-chat-editor > .chat-editor-editable {
 	color: var(--vscode-positronAssistant-inputForeground);
 	min-height: 37px;
 	max-height: 235px;
@@ -45,7 +50,7 @@
 	white-space: pre-wrap;
 }
 
-.positron-assistant-chat-editor > .editor-editable:focus {
+.positron-assistant-chat-editor > .chat-editor-editable:focus {
 	outline: none;
 }
 

@@ -3,24 +3,20 @@
  *  Licensed under the Elastic License 2.0. See LICENSE.txt for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ChatThread } from 'vs/workbench/contrib/positronAssistant/browser/components/chatThread';
 import { ChatInput } from 'vs/workbench/contrib/positronAssistant/browser/components/chatInput';
-import { CancellationTokenSource } from 'vs/base/common/cancellation';
-import { IPositronAssistantChatMessage, IPositronAssistantChatRequest } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 import { usePositronAssistantContext } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
+import { ChatSessionHistory } from 'vs/workbench/contrib/positronAssistant/browser/components/chatHistory';
+import { IPositronAssistantChatMessage } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 import { ChatMessage } from 'vs/workbench/contrib/positronAssistant/browser/components/chatMessage';
+import { DisposableStore } from 'vs/base/common/lifecycle';
 
 /**
  * ChatSession interface.
  */
 export interface ChatSessionProps { }
-
-export type ChatSessionActiveState = {
-	isActive: true;
-	cancellation: CancellationTokenSource;
-} | { isActive: false };
 
 /**
  * ChatSession component.
@@ -29,56 +25,33 @@ export type ChatSessionActiveState = {
  */
 export const ChatSession = (props: ChatSessionProps) => {
 	const positronAssistantContext = usePositronAssistantContext();
-	const { assistantService, selectedAssistant } = positronAssistantContext;
+	const { selectedChatSession } = positronAssistantContext;
 
-	/**
-	 * TODO: This state should be stored in the PositronAssistantState context, and/or reduced for
-	 * persistent storage in the Positron Assistant service. That way, we can restore history later.
-	 */
-	const [activeState, setActiveState] = useState<ChatSessionActiveState>({ isActive: false });
 	const [messages, setMessages] = useState<IPositronAssistantChatMessage[]>([]);
-	const provideResponse = async (prompt: string) => {
-		const tokenSource = new CancellationTokenSource();
-		if (selectedAssistant) {
-			const request: IPositronAssistantChatRequest = {
-				prompt,
-				history: messages,
-			};
-			setActiveState({ isActive: true, cancellation: tokenSource });
 
-			setMessages((prevMessages) => {
-				const messages = [...prevMessages];
-				messages.push({ role: 'user', content: prompt });
-				messages.push({ role: 'assistant', content: '' });
-				return messages;
-			});
+	// Update the session if the selected chat session changes, or a response is streaming in
+	useEffect(() => {
+		setMessages(selectedChatSession.history);
 
-			try {
-				await assistantService.provideChatResponse(selectedAssistant, request,
-					(content: string) => setMessages((prevMessages) => {
-						const messages = [...prevMessages];
-						messages[messages.length - 1] = {
-							role: 'assistant',
-							content: messages[messages.length - 1]?.content + content
-						};
-						return messages;
-					}), tokenSource.token);
-			} finally {
-				setActiveState({ isActive: false });
-			}
-		}
-	};
+		const disposableStore = new DisposableStore();
+		disposableStore.add(selectedChatSession.onChatResponse(() => {
+			setMessages([...selectedChatSession.history]);
+		}));
 
-	const messageElements = messages.map((message, idx) => <ChatMessage
+		return () => disposableStore.dispose();
+	}, [selectedChatSession]);
+
+	// Build selected session's message thread
+	const thread = messages.map((message, idx) => <ChatMessage
 		key={idx}
 		{...message}
-		active={activeState.isActive && idx === messages.length - 2}
+		active={selectedChatSession.isActive && idx === messages.length - 2}
 	/>);
 
 	return <div className='positron-assistant-chat-session'>
-		<ChatThread>
-			{messageElements}
-		</ChatThread>
-		<ChatInput onSubmit={provideResponse} activeState={activeState} />
+		{selectedChatSession.isNull
+			? <ChatSessionHistory />
+			: <ChatThread>{thread}</ChatThread>}
+		<ChatInput />
 	</div>;
 };

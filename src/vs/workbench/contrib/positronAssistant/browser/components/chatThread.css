@@ -21,3 +21,19 @@
 	margin-block-start: 1em;
 	margin-block-end: 1em;
 }
+
+.positron-assistant-chat-thread div[data-code] {
+	position: relative;
+}
+
+.positron-assistant-chat-thread .code-actions {
+	position: absolute;
+	right: 0;
+	display: none;
+	height: 25px;
+	z-index: 1;
+}
+
+.positron-assistant-chat-thread .rendered-markdown:hover .code-actions {
+	display: flex;
+}

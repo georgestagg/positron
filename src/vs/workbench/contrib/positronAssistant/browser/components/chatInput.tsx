@@ -4,9 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import 'vs/css!./chatInput';
-import React, { useState, useRef } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { usePositronAssistantContext } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantContext';
-import { ChatSessionActiveState } from 'vs/workbench/contrib/positronAssistant/browser/components/chatSession';
 import { DropDown } from 'vs/workbench/contrib/positronAssistant/browser/components/dropdown';
 import { Action, Separator } from 'vs/base/common/actions';
 
@@ -50,19 +49,41 @@ const ChatAssistantSelector = () => {
 /**
  * ChatInput interface.
  */
-export interface ChatInputProps {
-	onSubmit: (prompt: string) => void;
-	activeState: ChatSessionActiveState;
-}
+export interface ChatInputProps { }
 
 /**
  * ChatInput component.
+ *
+ * A HTML div with `contenteditable` provides an input editor for the user to interact with. Using
+ * a div here will allow for display of rich content as part of the editor window, e.g. markdown
+ * rendering of included code blocks, in the future.
+ *
+ * Here the editor's state is stored in a ref, rather than a useState hook, to avoid cursor jumping
+ * problems as the component is re-rendered. Going forward it might be possible to reduce the
+ * complexity of this component by using an off-the-shelf `contenteditable`-based input library.
+ *
  * @param props A ChatInputProps that contains the component properties.
  * @returns The rendered component.
  */
 export const ChatInput = (props: ChatInputProps) => {
+	const positronAssistantContext = usePositronAssistantContext();
+	const { assistantService, selectedAssistant, selectedChatSession } = positronAssistantContext;
+
 	const editorRef = useRef<HTMLInputElement>(null);
-	const [input, setInput] = useState<string>('');
+
+	const updateText = useCallback((text: string, shouldRender: boolean) => {
+		selectedChatSession.prompt = text;
+
+		// TODO: Remove `render` arg, always re-render markdown to editorRef.current.innerHTML
+		if (shouldRender && editorRef.current) {
+			editorRef.current.innerText = text;
+		}
+	}, [selectedChatSession]);
+
+	// Refresh the editor if the selected chat session changes
+	useEffect(() => {
+		updateText(selectedChatSession.prompt, true);
+	}, [updateText, selectedChatSession]);
 
 	// Allow modifier shortcuts to work in editor
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -117,37 +138,42 @@ export const ChatInput = (props: ChatInputProps) => {
 			range.deleteContents();
 			range.insertNode(document.createTextNode(text));
 			selection.collapseToEnd();
-			setInput(e.currentTarget.innerText);
+			updateText(e.currentTarget.innerText, false);
 		}
 	};
 
 	// Handle UI button interactions
 	const handleCancel = () => {
-		if (props.activeState.isActive) {
-			props.activeState.cancellation.cancel();
-		}
+		selectedChatSession.cancel();
 	};
 
-	// Submit input and clear editor component
 	const handleSubmit = () => {
 		const editor = editorRef.current;
-		if (editor && !props.activeState.isActive && input.trim() !== '') {
-			props.onSubmit(input);
-			while (editor && editor.firstChild) {
-				editor.removeChild(editor.firstChild);
-			}
-			setInput('');
-
-			// Return focus for follow up inputs
-			editor.focus();
+		if (!editor || !selectedAssistant) {
+			return;
 		}
+
+		// Assistant is already active and providing a response, or the editor is empty
+		if (selectedChatSession.isActive || selectedChatSession.prompt.trim() === '') {
+			return;
+		}
+
+		// Request a chat response using the current session's prompt
+		assistantService.provideChatResponse();
+
+		// Wipe the input currently in the editor
+		updateText('', true);
+
+		// Return focus for follow up chat
+		editor.focus();
 	};
 
+	// TODO: Update this text based on context (i.e. "Ask a follow up", localisation, etc.)
 	const placeholderText = 'Ask me anything';
 
 	return <div className='positron-assistant-chat-input'>
 		<div className='chat-top-toolbar'>
-			{props.activeState.isActive &&
+			{selectedChatSession.isActive &&
 				<button
 					className='positron-assistant-chat-stop'
 					onClick={handleCancel}
@@ -156,10 +182,10 @@ export const ChatInput = (props: ChatInputProps) => {
 		<div className='positron-assistant-chat-editor'>
 			<div
 				ref={editorRef}
-				onInput={(e) => setInput(e.currentTarget.innerText.replace(/\n$/, ''))}
+				onInput={(e) => updateText(e.currentTarget.innerText.replace(/\n$/, ''), false)}
 				onKeyDown={handleKeyDown}
 				onPaste={handlePaste}
-				className='editor-editable'
+				className='chat-editor-editable'
 				contentEditable='true'
 				translate='no'
 				autoCapitalize='off'
@@ -167,9 +193,9 @@ export const ChatInput = (props: ChatInputProps) => {
 				tabIndex={0}
 				role='textbox'
 			></div>
-			{input === '' && <div className='positron-assistant-editor-placeholder'>
+			<div className='positron-assistant-editor-placeholder'>
 				{placeholderText}
-			</div>}
+			</div>
 		</div>
 		<div className='chat-bottom-toolbar'>
 			<ChatAssistantSelector />

@@ -10,6 +10,7 @@ import { PositronAssistantContextProvider } from 'vs/workbench/contrib/positronA
 import { ChatSession } from 'vs/workbench/contrib/positronAssistant/browser/components/chatSession';
 import { IReactComponentContainer } from 'vs/base/browser/positronReactRenderer';
 import { PositronAssistantServices } from 'vs/workbench/contrib/positronAssistant/browser/positronAssistantState';
+import { ActionBars } from 'vs/workbench/contrib/positronAssistant/browser/components/actionBars';
 
 export interface PositronAssistantProps extends PositronAssistantServices {
 	readonly reactComponentContainer: IReactComponentContainer;
@@ -18,8 +19,8 @@ export interface PositronAssistantProps extends PositronAssistantServices {
 export const PositronAssistant = (props: React.PropsWithChildren<PositronAssistantProps>) => {
 
 	// Stubs for propagating height and width to the React component.
-	const [_width, setWidth] = React.useState(props.reactComponentContainer.width);
-	const [_height, setHeight] = React.useState(props.reactComponentContainer.height);
+	const [width, setWidth] = React.useState(props.reactComponentContainer.width);
+	const [height, setHeight] = React.useState(props.reactComponentContainer.height);
 
 	useEffect(() => {
 		const disposableStore = new DisposableStore();
@@ -31,8 +32,9 @@ export const PositronAssistant = (props: React.PropsWithChildren<PositronAssista
 	}, [props.reactComponentContainer]);
 
 	return (
-		<div className='positron-assistant'>
+		<div style={{ width: `${width}px`, height: `${height}px` }} className='positron-assistant'>
 			<PositronAssistantContextProvider {...props}>
+				<ActionBars {...props} />
 				<ChatSession></ChatSession>
 			</PositronAssistantContextProvider>
 		</div>

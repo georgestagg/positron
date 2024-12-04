@@ -8,9 +8,14 @@
 	background: var(--vscode-positronAssistant-background);
 }
 
-.positron-assistant,
-.positron-assistant .positron-assistant-chat-session {
+.positron-assistant {
 	display: flex;
-	height: 100%;
 	flex-direction: column;
+}
+
+.positron-assistant-chat-session {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	overflow: auto;
 }
