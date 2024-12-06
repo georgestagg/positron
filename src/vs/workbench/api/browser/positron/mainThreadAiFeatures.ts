@@ -36,7 +36,8 @@ export class MainThreadAiFeatures extends Disposable implements MainThreadAiFeat
 				} finally {
 					this._tasks.delete(taskId);
 				}
-			}
+			},
+			provideChatSummary: async (history, token) => this._proxy.$provideChatSummary(id, history, token),
 		};
 		const disposable = this._positronAssistantService.registerAssistant(id, provider);
 		this._registrations.set(id, disposable);

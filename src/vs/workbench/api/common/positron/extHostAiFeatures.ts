@@ -69,6 +69,16 @@ export class ExtHostAiFeatures implements extHostProtocol.ExtHostAiFeaturesShape
 		} finally {
 			response.close();
 		}
+	}
 
+	async $provideChatSummary(id: string, history: positron.ai.ChatMessage[],
+		token: vscode.CancellationToken): Promise<positron.ai.ChatSummary> {
+
+		const assistant = this._registeredAssistants.get(id);
+		if (!assistant) {
+			throw new Error('Assistant not found.');
+		}
+
+		return assistant.chatSummaryProvider(history, token);
 	}
 }

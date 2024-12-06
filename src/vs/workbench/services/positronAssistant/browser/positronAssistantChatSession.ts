@@ -3,11 +3,11 @@
  *  Licensed under the Elastic License 2.0. See LICENSE.txt for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { CancellationTokenSource } from 'vs/base/common/cancellation';
+import { CancellationToken, CancellationTokenSource } from 'vs/base/common/cancellation';
 import { Emitter } from 'vs/base/common/event';
 import { Disposable } from 'vs/base/common/lifecycle';
 import { IPositronAssistantChatSession } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantChatSession';
-import { IPositronAssistantChatMessage, IPositronAssistantChatRequest, IPositronAssistantService } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
+import { IPositronAssistantChatMessage, IPositronAssistantChatRequest, IPositronAssistantProvider, IPositronAssistantService } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantService';
 
 /**
  * PositronAssistantChatSession class.
@@ -54,6 +54,12 @@ export class PositronAssistantChatSession extends Disposable implements IPositro
 		this._cancellation = undefined;
 	}
 
+	async updateSummary(provider: IPositronAssistantProvider, token: CancellationToken) {
+		const summary = await provider.provideChatSummary(this.history, token);
+		this.title = summary.title;
+		this.summary = summary.summary;
+	}
+
 	async provideChatResponse() {
 		// Set active and generate a cancellation token
 		const cancellation = this.setActive();
@@ -97,6 +103,9 @@ export class PositronAssistantChatSession extends Disposable implements IPositro
 			// Final event to ensure a completed response once the provider has finished
 			this._onChatResponse.fire(this.history[this.history.length - 1]);
 		}
+
+		const src = new CancellationTokenSource();
+		await this.updateSummary(provider, src.token);
 	}
 }
 

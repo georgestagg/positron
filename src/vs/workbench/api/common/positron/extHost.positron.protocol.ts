@@ -115,6 +115,7 @@ export interface MainThreadAiFeaturesShape {
 
 export interface ExtHostAiFeaturesShape {
 	$provideChatResponse(id: string, request: ai.ChatRequest, taskId: string, token: CancellationToken): Promise<void>;
+	$provideChatSummary(id: string, request: ai.ChatMessage[], token: CancellationToken): Promise<ai.ChatSummary>;
 }
 
 /**

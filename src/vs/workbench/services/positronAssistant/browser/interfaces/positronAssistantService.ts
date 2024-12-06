@@ -16,6 +16,8 @@ export interface IPositronAssistantProvider {
 	name: string;
 	provideChatResponse(request: IPositronAssistantChatRequest, handler: (content: string) => void,
 		token: CancellationToken): Promise<void>;
+	provideChatSummary(history: IPositronAssistantChatMessage[],
+		token: CancellationToken): Promise<IPositronAssistantChatSummary>;
 }
 
 export interface IPositronAssistantChatTask {
@@ -44,6 +46,9 @@ export interface IPositronAssistantContext {
 		type: string;
 	}[];
 }
+export interface IPositronAssistantChatSummary {
+	title: string;
+	summary?: string;
 }
 
 /**

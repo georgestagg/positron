@@ -1385,6 +1385,12 @@ declare module 'positron' {
 			 */
 			readonly chatResponseProvider: (request: ai.ChatRequest, response: ai.ChatResponse,
 				token: vscode.CancellationToken) => Thenable<void>;
+
+			/**
+			 * Handle a chat summary request.
+			 */
+			readonly chatSummaryProvider: (history: ai.ChatMessage[],
+				token: vscode.CancellationToken) => Thenable<ChatSummary>;
 		}
 
 		/**
@@ -1438,6 +1444,20 @@ declare module 'positron' {
 			};
 		}
 
+		/**
+		 * A summary of a chat message thread
+		 */
+		export interface ChatSummary {
+			/**
+			 * A title for the conversation.
+			 */
+			title: string;
+
+			/**
+			 * Summary of conversation.
+			 */
+			summary?: string;
+		}
 		/**
 		 * Methods provided to stream content back to the user.
 		 */

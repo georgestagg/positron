@@ -15,6 +15,7 @@ abstract class Assistant implements positron.ai.Assistant {
 		this.name = _config.name;
 	}
 	public abstract chatResponseProvider(request: positron.ai.ChatRequest, response: positron.ai.ChatResponse, token: vscode.CancellationToken): Promise<void>;
+	public abstract chatSummaryProvider(history: positron.ai.ChatMessage[], token: vscode.CancellationToken): Promise<positron.ai.ChatSummary>;
 }
 
 class EchoAssistant extends Assistant {
@@ -27,6 +28,10 @@ class EchoAssistant extends Assistant {
 				return;
 			}
 		}
+	}
+
+	async chatSummaryProvider(history: positron.ai.ChatMessage[], token: vscode.CancellationToken) {
+		return { title: history[0].content };
 	}
 }
 
@@ -100,6 +105,10 @@ class OpenAIAssistant extends Assistant {
 				}
 			}
 		}
+	}
+
+	async chatSummaryProvider(history: positron.ai.ChatMessage[], token: vscode.CancellationToken) {
+		return { title: history[0].content };
 	}
 }
 
@@ -182,6 +191,10 @@ class AnthropicAssistant extends Assistant {
 				}
 			}
 		}
+	}
+
+	async chatSummaryProvider(history: positron.ai.ChatMessage[], token: vscode.CancellationToken) {
+		return { title: history[0].content };
 	}
 }
 
