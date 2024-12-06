@@ -19,6 +19,7 @@ abstract class Assistant implements positron.ai.Assistant {
 
 class EchoAssistant extends Assistant {
 	async chatResponseProvider(request: positron.ai.ChatRequest, response: positron.ai.ChatResponse, token: vscode.CancellationToken) {
+		response.write(`Context: ${JSON.stringify(request.context)}.`);
 		for await (const i of request.prompt.split('')) {
 			await new Promise(resolve => setTimeout(resolve, 10));
 			response.write(i);
@@ -31,6 +32,13 @@ class EchoAssistant extends Assistant {
 
 class OpenAIAssistant extends Assistant {
 	async chatResponseProvider(request: positron.ai.ChatRequest, response: positron.ai.ChatResponse, token: vscode.CancellationToken) {
+		const messages = [
+			{ role: 'system', content: 'You are a helpful coding assistant.' },
+			...request.history.filter((message) => message.content),
+			{ role: 'user', content: JSON.stringify(request.context) },
+			{ role: 'assistant', content: 'Acknowledged. I won\t explicitly mention this context if it is irrelevant, but I will keep it in mind for my responses.' },
+			{ role: 'user', content: request.prompt },
+		];
 		const controller = new AbortController();
 		const rsp = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
@@ -40,11 +48,7 @@ class OpenAIAssistant extends Assistant {
 			},
 			body: JSON.stringify({
 				model: this._config.model,
-				messages: [
-					{ role: 'system', content: 'You are a helpful coding assistant.' },
-					...request.history,
-					{ role: 'user', content: request.prompt }
-				],
+				messages,
 				stream: true,
 			}),
 			signal: controller.signal,
@@ -101,6 +105,12 @@ class OpenAIAssistant extends Assistant {
 
 class AnthropicAssistant extends Assistant {
 	async chatResponseProvider(request: positron.ai.ChatRequest, response: positron.ai.ChatResponse, token: vscode.CancellationToken) {
+		const messages = [
+			...request.history.filter((message) => message.content),
+			{ role: 'user', content: JSON.stringify(request.context) },
+			{ role: 'assistant', content: 'Acknowledged. I won\t explicitly mention this context if it is irrelevant, but I will keep it in mind for my responses.' },
+			{ role: 'user', content: request.prompt },
+		];
 		const controller = new AbortController();
 		const rsp = await fetch('https://api.anthropic.com/v1/messages', {
 			method: 'POST',
@@ -111,8 +121,9 @@ class AnthropicAssistant extends Assistant {
 			},
 			body: JSON.stringify({
 				model: this._config.model,
-				messages: [...request.history, { role: 'user', content: request.prompt }],
+				messages,
 				max_tokens: 4096,
+				system: `You are a helpful coding assistant.`,
 				stream: true,
 			}),
 			signal: controller.signal,

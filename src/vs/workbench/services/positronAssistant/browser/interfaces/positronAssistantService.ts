@@ -30,6 +30,20 @@ export interface IPositronAssistantChatMessage {
 export interface IPositronAssistantChatRequest {
 	prompt: string;
 	history: IPositronAssistantChatMessage[];
+	context: IPositronAssistantContext;
+}
+
+export interface IPositronAssistantContext {
+	console: {
+		language: string;
+		version: string;
+	};
+	variables: {
+		name: string;
+		value: string;
+		type: string;
+	}[];
+}
 }
 
 /**
@@ -107,6 +121,11 @@ export interface IPositronAssistantService {
 	 * Provide a chat response for the currently selected assistant and chat session.
 	 */
 	provideChatResponse(): Promise<void>;
+
+	/**
+	 * Return a structured object representing the current context in Positron.
+	 */
+	buildChatContext(): IPositronAssistantContext;
 
 	/**
 	 * Placeholder that gets called to "initialize" the PositronAssistantService.

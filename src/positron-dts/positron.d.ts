@@ -1421,6 +1421,21 @@ declare module 'positron' {
 			 * Histroy for this chat thread.
 			 */
 			history: ChatMessage[];
+
+			/**
+			 * Other context to be provided to the assistant.
+			 */
+			context: {
+				console: {
+					language: string;
+					version: string;
+				};
+				variables: {
+					name: string;
+					value: string;
+					type: string;
+				}[];
+			};
 		}
 
 		/**

@@ -65,7 +65,6 @@ export class ExtHostAiFeatures implements extHostProtocol.ExtHostAiFeaturesShape
 		const response = new ChatResponse(this._proxy, taskId);
 
 		try {
-			const response = new ChatResponse(this._proxy, taskId);
 			await assistant.chatResponseProvider(request, response, token);
 		} finally {
 			response.close();

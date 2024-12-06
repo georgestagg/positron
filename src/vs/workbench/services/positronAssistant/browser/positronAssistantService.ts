@@ -11,6 +11,9 @@ import { Emitter } from 'vs/base/common/event';
 import { IPositronAssistantChatSession } from 'vs/workbench/services/positronAssistant/browser/interfaces/positronAssistantChatSession';
 import { PositronAssistantChatSession, PositronAssistantNullChatSession } from 'vs/workbench/services/positronAssistant/browser/positronAssistantChatSession';
 import { generateUuid } from 'vs/base/common/uuid';
+import { IPositronConsoleService } from 'vs/workbench/services/positronConsole/browser/interfaces/positronConsoleService';
+import { IPositronVariablesService } from 'vs/workbench/services/positronVariables/common/interfaces/positronVariablesService';
+import { PositronVariablesInstance } from 'vs/workbench/services/positronVariables/common/positronVariablesInstance';
 
 /**
  * PositronAssistantService class.
@@ -38,9 +41,10 @@ class PositronAssistantService extends Disposable implements IPositronAssistantS
 
 	constructor(
 		@ILogService private readonly _logService: ILogService,
+		@IPositronConsoleService private readonly _consoleService: IPositronConsoleService,
+		@IPositronVariablesService private readonly _variableService: IPositronVariablesService,
 	) {
 		super();
-		this._selectedAssistant = null;
 	}
 
 	registerAssistant(id: string, provider: IPositronAssistantProvider): IDisposable {
@@ -131,6 +135,24 @@ class PositronAssistantService extends Disposable implements IPositronAssistantS
 		}
 
 		return session.provideChatResponse();
+	}
+
+	buildChatContext() {
+		const inst = this._variableService.activePositronVariablesInstance as PositronVariablesInstance;
+
+		return {
+			console: {
+				language: this._consoleService.activePositronConsoleInstance?.session.runtimeMetadata.languageName ?? '',
+				version: this._consoleService.activePositronConsoleInstance?.session.runtimeMetadata.languageVersion ?? ''
+			},
+			variables: inst.variableItems.map((item) => {
+				return {
+					name: item.displayName,
+					value: item.displayValue,
+					type: item.displayType,
+				};
+			}),
+		};
 	}
 
 	initialize(): void { }

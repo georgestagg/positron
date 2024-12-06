@@ -62,6 +62,7 @@ export class PositronAssistantChatSession extends Disposable implements IPositro
 		const request: IPositronAssistantChatRequest = {
 			prompt: this.prompt,
 			history: [...this.history],
+			context: this._context.buildChatContext(),
 		};
 
 		// Update session to reflect user submitted message and prepare for assistant response
