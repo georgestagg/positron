@@ -71,7 +71,9 @@ export const usePositronAssistantState = (services: PositronAssistantServices): 
 		return new PositronAssistantMarkdownRenderer(
 			undefined,
 			services.languageService,
-			services.openerService
+			services.openerService,
+			services.clipboardService,
+			services.editorService,
 		);
 	}, [services]);
 
