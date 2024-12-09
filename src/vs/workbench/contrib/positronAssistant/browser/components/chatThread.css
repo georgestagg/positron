@@ -17,7 +17,8 @@
 	border: 1px solid var(--vscode-positronAssistant-border);
 	padding: 10px;
 	border-radius: 5px;
-	white-space: pre-wrap;
+	white-space: pre;
+	overflow-x: auto;
 	margin-block-start: 1em;
 	margin-block-end: 1em;
 }
