@@ -24,11 +24,21 @@ export const ChatThread = (props: React.PropsWithChildren<ChatThreadProps>) => {
 	const threadRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	// Autoscroll the messages thread when already near the bottom and content updates
+	// Autoscroll the messages thread
 	useEffect(() => {
+		let numberChildren = 0;
 		const onHeightChange = () => {
 			const thread = threadRef.current;
+
+			// When already near the bottom and content has updates
 			if (thread && thread.scrollTop + thread.clientHeight > thread.scrollHeight - 100) {
+				thread.scrollTop = thread.scrollHeight;
+			}
+
+			// Always scroll if entirely new messages are added
+			const currentChildren = containerRef.current?.childNodes.length ?? 0;
+			if (thread && numberChildren < currentChildren) {
+				numberChildren = currentChildren;
 				thread.scrollTop = thread.scrollHeight;
 			}
 		};
