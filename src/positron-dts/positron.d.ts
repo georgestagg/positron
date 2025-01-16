@@ -1563,6 +1563,13 @@ declare module 'positron' {
 				response: vscode.ChatResponseStream,
 				token: vscode.CancellationToken
 			) => Thenable<vscode.ChatResult | void>;
+			welcomeMessageProvider?: {
+				provideWelcomeMessage?(token: vscode.CancellationToken): Thenable<{
+					icon: vscode.ThemeIcon;
+					title: string;
+					message: vscode.MarkdownString;
+				}>;
+			};
 		}
 
 		/**
