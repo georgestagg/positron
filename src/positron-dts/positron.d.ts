@@ -1513,7 +1513,7 @@ declare module 'positron' {
 	 */
 	namespace ai {
 		/**
-		 * A language model provider, c.f. vscode.LanguageModelChatProvider.
+		 * A language model provider, extends vscode.LanguageModelChatProvider.
 		 */
 		export interface LanguageModelChatProvider {
 			name: string;
@@ -1540,12 +1540,9 @@ declare module 'positron' {
 			provideTokenCount(text: string | vscode.LanguageModelChatMessage, token: vscode.CancellationToken): Thenable<number>;
 		}
 
-		export interface ChatAgentSlashCommands {
-			name: string;
-			description: string;
-			isSticky?: boolean;
-		}
-
+		/**
+		 * Dynamically defined chat agent properties and metadata.
+		 */
 		export interface ChatAgentData {
 			id: string;
 			name: string;
@@ -1553,20 +1550,25 @@ declare module 'positron' {
 			description?: string;
 			isDefault?: boolean;
 			metadata: { isSticky?: boolean };
-			slashCommands: ChatAgentSlashCommands[];
+			slashCommands: {
+				name: string;
+				description: string;
+				isSticky?: boolean;
+			}[];
 			locations: ('panel' | 'terminal' | 'notebook' | 'editor' | 'editing-session')[];
 			disambiguation: { category: string; description: string; examples: string[] }[];
 		}
 
+		/**
+		 * A chat participant, extends vscode.ChatParticipant with additional dynamic metadata.
+		 */
 		export interface ChatParticipant extends vscode.ChatParticipant {
-			id: string;
 			agentData: ChatAgentData;
-			iconPath: vscode.ThemeIcon;
 		}
 
 		/**
-		 * Register a chat agent dynamically, without populating `package.json`. This allows for
-		 * defining dynamic agent commands.
+		 * Register a chat agent dynamically, without requiring registration in `package.json`.
+		 * This allows for dynamic chat agent commands in Positron.
 		 */
 		export function registerChatAgent(agentData: ChatAgentData): Thenable<vscode.Disposable>;
 
