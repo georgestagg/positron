@@ -1578,12 +1578,13 @@ declare module 'positron' {
 		export interface LanguageModelSource {
 			type: 'chat' | 'completion';
 			provider: { id: string; displayName: string };
-			supportedOptions: ('apiKey' | 'baseUrl')[];
+			supportedOptions: ('apiKey' | 'baseUrl' | 'toolCalls')[];
 			defaults: {
 				name: string;
 				model: string;
 				baseUrl?: string;
 				apiKey?: string;
+				toolCalls?: boolean;
 			};
 		}
 
@@ -1597,6 +1598,7 @@ declare module 'positron' {
 			model: string;
 			baseUrl?: string;
 			apiKey?: string;
+			toolCalls?: boolean;
 		}
 
 		/**
