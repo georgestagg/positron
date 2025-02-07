@@ -19,6 +19,21 @@
   ],
   "contributes": {
     "menus": {
+      "scm/resourceGroup/context" : [
+        {
+          "command": "positron-assistant.review",
+          "group": "inline@0",
+          "when": "scmProvider == git && scmResourceGroup == workingTree && config.git.untrackedChanges == mixed"
+        }
+      ],
+      "comments/commentThread/additionalActions": [
+        {
+          "command": "positron-assistant.apply"
+        },
+        {
+          "command": "positron-assistant.discard"
+        }
+      ],
       "chat/input": [
         {
           "command": "positron-assistant.addModelConfiguration",
@@ -33,6 +48,21 @@
       ]
     },
     "commands": [
+      {
+        "command": "positron-assistant.review",
+        "title": "Assistant Code Review",
+        "icon": "$(code-review)"
+      },
+      {
+        "command": "positron-assistant.apply",
+        "title": "Apply",
+        "icon": "$(check)"
+      },
+      {
+        "command": "positron-assistant.discard",
+        "title": "Discard",
+        "icon": "$(discard)"
+      },
       {
         "command": "positron-assistant.addModelConfiguration",
         "title": "%commands.addModelConfiguration.title%",
