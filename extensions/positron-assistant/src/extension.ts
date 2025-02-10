@@ -10,6 +10,7 @@ import { newLanguageModel } from './models';
 import participants from './participants';
 import { newCompletionProvider, registerHistoryTracking } from './completion';
 import { editsProvider } from './edits';
+import { setContext } from './context';
 
 const hasChatModelsContextKey = 'positron-assistant.hasChatModels';
 
@@ -114,6 +115,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register mapped edits provider
 	registerMappedEditsProvider(context);
+
+	// Register context singleton
+	setContext(context);
 
 	// Listen for configuration changes
 	context.subscriptions.push(

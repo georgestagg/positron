@@ -9,6 +9,7 @@ import * as ai from 'ai';
 
 import { z } from 'zod';
 import { padBase64String } from './utils';
+import { executeCodeInActiveConsole } from './execute';
 
 export interface PositronToolAdapter {
 	toolData: vscode.LanguageModelChatTool;
@@ -94,8 +95,26 @@ export const textEditToolAdapter: PositronToolAdapter = {
 	}
 };
 
+export const executeToolAdapter: PositronToolAdapter = {
+	toolData: {
+		name: 'execute',
+		description: 'Given some code, execute the code in the currently running active console. You can provide code to be evaluated by the active console using the execute tool.',
+	},
+
+	provideAiTool(token: unknown): ai.Tool {
+		return ai.tool({
+			description: this.toolData.description,
+			parameters: z.object({
+				code: z.string().describe('The code to be evaluated by the currently active console.'),
+			}),
+			execute: async ({ code }) => executeCodeInActiveConsole(code, token),
+		});
+	},
+};
+
 export const positronToolAdapters: Record<string, PositronToolAdapter> = {
 	[getPlotToolAdapter.toolData.name]: getPlotToolAdapter,
 	[textEditToolAdapter.toolData.name]: textEditToolAdapter,
+	[executeToolAdapter.toolData.name]: executeToolAdapter,
 };
 

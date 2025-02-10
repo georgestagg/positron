@@ -12,6 +12,7 @@ import { toLanguageModelChatMessage } from './utils';
 import { getStoredModels } from './config';
 import { QUARTO_COMMAND, QUARTO_DESCRIPTION, quartoHandler } from './commands/quarto';
 import { defaultHandler } from './commands/default';
+import { databotHandler } from './commands/databot';
 
 const mdDir = `${EXTENSION_ROOT_DIR}/src/md/`;
 
@@ -24,10 +25,7 @@ class PositronAssistantParticipant implements positron.ai.ChatParticipant {
 		metadata: { isSticky: false },
 		fullName: 'Positron Assistant',
 		isDefault: true,
-		slashCommands: [{
-			name: QUARTO_COMMAND,
-			description: QUARTO_DESCRIPTION,
-		}],
+		slashCommands: [],
 		locations: [
 			positron.PositronChatAgentLocation.Panel,
 			positron.PositronChatAgentLocation.Terminal,
@@ -96,12 +94,42 @@ class PositronAssistantParticipant implements positron.ai.ChatParticipant {
 	};
 
 	async requestHandler(request: vscode.ChatRequest, context: vscode.ChatContext, response: vscode.ChatResponseStream, token: vscode.CancellationToken) {
+		return defaultHandler(request, context, response, token);
+	}
+
+	dispose(): void { }
+}
+
+class DataBotParticipant implements positron.ai.ChatParticipant {
+	readonly id = 'positron.databot';
+	readonly iconPath = new vscode.ThemeIcon('robot');
+	readonly agentData: positron.ai.ChatAgentData = {
+		id: this.id,
+		name: 'databot',
+		metadata: { isSticky: true },
+		fullName: 'Databot',
+		isDefault: false,
+		slashCommands: [{
+			name: QUARTO_COMMAND,
+			description: QUARTO_DESCRIPTION,
+		}],
+		locations: [positron.PositronChatAgentLocation.Panel],
+		disambiguation: []
+	};
+
+	readonly _receiveFeedbackEventEmitter = new vscode.EventEmitter<vscode.ChatResultFeedback>();
+	onDidReceiveFeedback: vscode.Event<vscode.ChatResultFeedback> = this._receiveFeedbackEventEmitter.event;
+
+	readonly _performActionEventEmitter = new vscode.EventEmitter<vscode.ChatUserActionEvent>();
+	onDidPerformAction: vscode.Event<vscode.ChatUserActionEvent> = this._performActionEventEmitter.event;
+
+	async requestHandler(request: vscode.ChatRequest, context: vscode.ChatContext, response: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		// Select request handler based on the command issued by the user for this request
 		switch (request.command) {
 			case 'quarto':
 				return quartoHandler(request, context, response, token);
 			default:
-				return defaultHandler(request, context, response, token);
+				return databotHandler(request, context, response, token);
 		}
 	}
 
@@ -110,5 +138,6 @@ class PositronAssistantParticipant implements positron.ai.ChatParticipant {
 
 const participants: Record<string, positron.ai.ChatParticipant> = {
 	'positron-assistant': new PositronAssistantParticipant(),
+	'databot': new DataBotParticipant(),
 };
 export default participants;
