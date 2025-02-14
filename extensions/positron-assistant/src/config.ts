@@ -7,6 +7,7 @@ import * as positron from 'positron';
 import { randomUUID } from 'crypto';
 import { languageModels } from './models';
 import { completionModels } from './completion';
+import { CopilotCoordinator } from './copilot';
 
 interface StoredModelConfig extends Omit<positron.ai.LanguageModelConfig, 'apiKey'> {
 	id: string;
@@ -14,6 +15,9 @@ interface StoredModelConfig extends Omit<positron.ai.LanguageModelConfig, 'apiKe
 
 export interface ModelConfig extends StoredModelConfig {
 	apiKey: string;
+	name: string;
+	model: string;
+	extension: vscode.ExtensionContext;
 }
 
 export function getStoredModels(): StoredModelConfig[] {
@@ -25,16 +29,54 @@ export function getStoredModels(): StoredModelConfig[] {
 export async function getModelConfigurations(context: vscode.ExtensionContext): Promise<ModelConfig[]> {
 	const storedConfigs = getStoredModels();
 
-	const fullConfigs: ModelConfig[] = await Promise.all(
+	// Grab API keys for models that require key auth
+	let fullConfigs: ModelConfig[] = await Promise.all(
 		storedConfigs.map(async (config) => {
 			const apiKey = await context.secrets.get(`apiKey-${config.id}`);
 			return {
 				...config,
-				apiKey: apiKey || ''
+				apiKey: apiKey ?? '',
+				name: config.name ?? '',
+				model: config.model ?? '',
+				extension: context,
 			};
 		})
 	);
 
+	// For the copilot chat provider, add the multiple supported models
+	const copilotConfig = fullConfigs.find((config) => config.provider === 'copilot' && config.type === positron.PositronLanguageModelType.Chat);
+	if (copilotConfig) {
+		fullConfigs = [
+			...fullConfigs.filter((config) => config.provider !== 'copilot'),
+		];
+
+		const copilot = CopilotCoordinator.getInstance(context);
+		const models = await copilot.getModels();
+		models
+			.filter((model) => !model.scopes.includes('completion'))
+			.forEach((model) => {
+				fullConfigs.push({
+					id: `${copilotConfig.id}-${model.id}`,
+					type: positron.PositronLanguageModelType.Chat,
+					apiKey: '',
+					provider: 'copilot',
+					name: model.modelName,
+					model: model.modelFamily,
+					extension: context,
+				});
+			});
+
+		const completion = models.find((model) => model.scopes.includes('completion'))!;
+		fullConfigs.push({
+			id: `${copilotConfig.id}-${completion.id}`,
+			type: positron.PositronLanguageModelType.Completion,
+			apiKey: '',
+			provider: 'copilot',
+			name: completion.modelName,
+			model: completion.modelFamily,
+			extension: context,
+		});
+	}
 	return fullConfigs;
 }
 
@@ -44,11 +86,7 @@ export async function showConfigurationDialog(context: vscode.ExtensionContext) 
 
 	// Show a modal asking user for configuration details
 	return positron.ai.showLanguageModelConfig(sources, async (userConfig) => {
-		let { name, model, baseUrl, apiKey, ...otherConfig } = userConfig;
-		name = name.trim();
-		model = model.trim();
-		baseUrl = baseUrl?.trim();
-		apiKey = apiKey?.trim();
+		const { provider, apiKey, ...otherConfig } = userConfig;
 
 		// Create unique ID for the configuration
 		const id = randomUUID();
@@ -77,9 +115,7 @@ export async function showConfigurationDialog(context: vscode.ExtensionContext) 
 		// Add new configuration
 		const newConfig: StoredModelConfig = {
 			id,
-			name,
-			model,
-			baseUrl,
+			provider,
 			...otherConfig,
 		};
 
@@ -91,7 +127,7 @@ export async function showConfigurationDialog(context: vscode.ExtensionContext) 
 		);
 
 		vscode.window.showInformationMessage(
-			vscode.l10n.t(`Language Model {0} has been added successfully.`, name)
+			vscode.l10n.t(`Language Model "{0}" has been added successfully.`, provider)
 		);
 	});
 

@@ -16,5 +16,8 @@ module.exports = withDefaults({
 	},
 	node: {
 		__dirname: false
+	},
+	externals: {
+		'@github/copilot-language-server': 'commonjs @github/copilot-language-server',
 	}
 });

@@ -39,6 +39,18 @@
         "title": "%commands.addModelConfiguration.title%",
         "category": "%commands.addModelConfiguration.category%",
         "enablement": "isDevelopment"
+      },
+      {
+        "command": "positron-assistant.copilot.signout",
+        "title": "Sign Out",
+        "category": "Positron Assistant: GitHub Copilot",
+        "enablement": "isDevelopment && positron-assistant.copilot.status.running"
+      },
+      {
+        "command": "positron-assistant.copilot.signin",
+        "title": "Sign In",
+        "category": "Positron Assistant: GitHub Copilot",
+        "enablement": "isDevelopment && positron-assistant.copilot.status.running"
       }
     ],
     "languageModels": [
@@ -97,6 +109,7 @@
                   "azure",
                   "echo",
                   "error",
+                  "copilot",
                   "mistral",
                   "ollama",
                   "openai",
@@ -153,5 +166,9 @@
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.11.0",
     "zod": "^3.24.1"
+  },
+  "dependencies": {
+    "@github/copilot-language-server": "^1.273.0",
+    "vscode-languageclient": "^9.0.1"
   }
 }

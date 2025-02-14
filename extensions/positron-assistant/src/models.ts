@@ -18,6 +18,7 @@ import { replaceBinaryMessageParts, toAIMessage } from './utils';
 import { positronToolAdapters } from './tools';
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
+import { CopilotCoordinator } from './copilot';
 
 /**
  * Models used by chat participants and for vscode.lm.* API functionality.
@@ -78,6 +79,54 @@ class EchoLanguageModel implements positron.ai.LanguageModelChatProvider {
 			const _text = toAIMessage([text]);
 			return _text.length > 0 ? _text[0].content.length : 0;
 		}
+	}
+}
+
+//#endregion
+//#region GitHub Copilot
+class CopilotLanguageModel implements positron.ai.LanguageModelChatProvider {
+	public readonly name;
+	public readonly provider;
+	public readonly identifier;
+	protected copilot: CopilotCoordinator;
+
+	static source: positron.ai.LanguageModelSource = {
+		type: positron.PositronLanguageModelType.Chat,
+		provider: {
+			id: 'copilot',
+			displayName: 'GitHub Copilot'
+		},
+		supportedOptions: [],
+		defaults: {},
+	};
+
+	constructor(protected readonly _config: ModelConfig) {
+		this.identifier = _config.id;
+		this.name = _config.name;
+		this.provider = _config.provider;
+		this.copilot = CopilotCoordinator.getInstance(_config.extension);
+	}
+
+	async provideLanguageModelResponse(
+		messages: vscode.LanguageModelChatMessage[],
+		options: vscode.LanguageModelChatRequestOptions,
+		extensionId: string,
+		progress: vscode.Progress<vscode.ChatResponseFragment2>,
+		token: vscode.CancellationToken,
+	): Promise<void> {
+		return this.copilot.provideLanguageModelResponse(
+			this._config.model,
+			messages,
+			options,
+			extensionId,
+			progress,
+			token
+		);
+	}
+
+	async provideTokenCount(text: string | vscode.LanguageModelChatMessage, token: vscode.CancellationToken): Promise<number> {
+		// TODO: This is a very naive approximation, a model specific tokenizer should be used.
+		return typeof text === 'string' ? text.length : JSON.stringify(text.content).length;
 	}
 }
 
@@ -210,7 +259,7 @@ class AnthropicLanguageModel extends AILanguageModel implements positron.ai.Lang
 			id: 'anthropic',
 			displayName: 'Anthropic'
 		},
-		supportedOptions: ['apiKey'],
+		supportedOptions: ['name', 'model', 'apiKey'],
 		defaults: {
 			name: 'Claude 3.5 Sonnet',
 			model: 'claude-3-5-sonnet-latest',
@@ -233,7 +282,7 @@ class OpenAILanguageModel extends AILanguageModel implements positron.ai.Languag
 			id: 'openai',
 			displayName: 'OpenAI'
 		},
-		supportedOptions: ['apiKey', 'baseUrl', 'toolCalls'],
+		supportedOptions: ['name', 'model', 'apiKey', 'baseUrl', 'toolCalls'],
 		defaults: {
 			name: 'GPT-4o',
 			model: 'gpt-4o',
@@ -260,7 +309,7 @@ class MistralLanguageModel extends AILanguageModel implements positron.ai.Langua
 			id: 'mistral',
 			displayName: 'Mistral'
 		},
-		supportedOptions: ['apiKey', 'baseUrl', 'toolCalls'],
+		supportedOptions: ['name', 'model', 'apiKey', 'baseUrl', 'toolCalls'],
 		defaults: {
 			name: 'Pixtral Large',
 			model: 'pixtral-large-latest',
@@ -287,7 +336,7 @@ class OpenRouterLanguageModel extends AILanguageModel implements positron.ai.Lan
 			id: 'openrouter',
 			displayName: 'OpenRouter'
 		},
-		supportedOptions: ['apiKey', 'baseUrl', 'toolCalls'],
+		supportedOptions: ['name', 'model', 'apiKey', 'baseUrl', 'toolCalls'],
 		defaults: {
 			name: 'Claude 3.5 Sonnet',
 			model: 'anthropic/claude-3.5-sonnet',
@@ -314,7 +363,7 @@ class OllamaLanguageModel extends AILanguageModel implements positron.ai.Languag
 			id: 'ollama',
 			displayName: 'Ollama'
 		},
-		supportedOptions: ['baseUrl', 'toolCalls', 'numCtx'],
+		supportedOptions: ['name', 'model', 'baseUrl', 'toolCalls', 'numCtx'],
 		defaults: {
 			name: 'Qwen 2.5',
 			model: 'qwen2.5-coder:7b',
@@ -341,7 +390,7 @@ class AzureLanguageModel extends AILanguageModel implements positron.ai.Language
 			id: 'azure',
 			displayName: 'Azure'
 		},
-		supportedOptions: ['resourceName', 'apiKey', 'toolCalls'],
+		supportedOptions: ['name', 'model', 'resourceName', 'apiKey', 'toolCalls'],
 		defaults: {
 			name: 'GPT 4o',
 			model: 'gpt-4o',
@@ -368,7 +417,7 @@ class VertexLanguageModel extends AILanguageModel implements positron.ai.Languag
 			id: 'vertex',
 			displayName: 'Google Vertex AI'
 		},
-		supportedOptions: ['toolCalls', 'project', 'location'],
+		supportedOptions: ['name', 'model', 'toolCalls', 'project', 'location'],
 		defaults: {
 			name: 'Gemini 2.0 Flash',
 			model: 'gemini-2.0-flash-exp',
@@ -396,7 +445,7 @@ export class AWSLanguageModel extends AILanguageModel implements positron.ai.Lan
 			id: 'bedrock',
 			displayName: 'AWS Bedrock'
 		},
-		supportedOptions: ['toolCalls'],
+		supportedOptions: ['name', 'model', 'toolCalls'],
 		defaults: {
 			name: 'Claude 3.5 Sonnet v2',
 			model: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
@@ -425,6 +474,7 @@ export function newLanguageModel(config: ModelConfig): positron.ai.LanguageModel
 		'anthropic': AnthropicLanguageModel,
 		'azure': AzureLanguageModel,
 		'bedrock': AWSLanguageModel,
+		'copilot': CopilotLanguageModel,
 		'mistral': MistralLanguageModel,
 		'ollama': OllamaLanguageModel,
 		'openai': OpenAILanguageModel,
@@ -443,6 +493,7 @@ export const languageModels = [
 	AnthropicLanguageModel,
 	AzureLanguageModel,
 	AWSLanguageModel,
+	CopilotLanguageModel,
 	MistralLanguageModel,
 	OpenAILanguageModel,
 	OpenRouterLanguageModel,

@@ -23,6 +23,8 @@ export async function defaultHandler(
 	response: vscode.ChatResponseStream,
 	token: vscode.CancellationToken
 ) {
+	const requestId = crypto.randomUUID();
+
 	// System prompt
 	let system = await fs.promises.readFile(`${mdDir}/prompts/chat/default.md`, 'utf8');
 
@@ -112,9 +114,10 @@ export async function defaultHandler(
 	}
 
 	// When invoked from the editor, add selection context and editor tool
+	let document: vscode.TextDocument | null = null;
 	if (request.location2 instanceof vscode.ChatRequestEditorData) {
 		system += await fs.promises.readFile(`${mdDir}/prompts/chat/editor.md`, 'utf8');
-		const document = request.location2.document;
+		document = request.location2.document;
 		const selection = request.location2.selection;
 		const selectedText = document.getText(selection);
 		messages.push(...[
@@ -150,6 +153,8 @@ export async function defaultHandler(
 		const modelResponse = await request.model.sendRequest(messages, {
 			tools,
 			modelOptions: {
+				requestId,
+				location: request.location,
 				toolInvocationToken: request.toolInvocationToken,
 				toolOptions,
 				binaryReferences,
@@ -197,12 +202,28 @@ export async function defaultHandler(
 
 			return streamResponse(newHistory);
 		}
+		return textResponses;
 	}
 
-	await streamResponse(messages);
+	// Handle inline text edits of the form <!-- replace lines X to Y -->
+	// TODO: Deal with this earlier, so that it's not output into the chat history
+	const responses = await streamResponse(messages);
+	const text = responses.reduce((acc, part) => acc + part.value, '');
+	if (document) {
+		const matches = Array.from(text.matchAll(/<!-- replace lines (\d+) to (\d+) -->\n```(\w+)\n([\s\S]+?)\n```/g));
+		matches.forEach((m: RegExpExecArray) => {
+			const start = parseInt(m[1]) - 1;
+			const end = parseInt(m[2]) - 1;
+			const code = m[4];
+			//replace start to end, to the end of the line
+			const range = new vscode.Range(start, 0, end, document.lineAt(end).text.length);
+			response.push(new vscode.ChatResponseTextEditPart(document.uri, vscode.TextEdit.replace(range, code)));
+		});
+	}
 
 	return {
 		metadata: {
+			requestId,
 			modelId: request.model.id
 		},
 	};

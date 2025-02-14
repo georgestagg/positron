@@ -73,8 +73,8 @@ const LanguageModelConfiguration = (props: React.PropsWithChildren<LanguageModel
 	const [location, setLocation] = React.useState<string | undefined>(defaultSource.defaults.location);
 	const [toolCalls, setToolCalls] = React.useState<boolean | undefined>(defaultSource.defaults.toolCalls);
 	const [numCtx, setNumCtx] = React.useState<number | undefined>(defaultSource.defaults.numCtx);
-	const [model, setModel] = React.useState<string>(defaultSource.defaults.model);
-	const [name, setName] = React.useState<string>(defaultSource.defaults.name);
+	const [model, setModel] = React.useState<string | undefined>(defaultSource.defaults.model);
+	const [name, setName] = React.useState<string | undefined>(defaultSource.defaults.name);
 
 	useEffect(() => {
 		setSource(defaultSource);
@@ -108,13 +108,13 @@ const LanguageModelConfiguration = (props: React.PropsWithChildren<LanguageModel
 		await props.onSave({
 			type: type,
 			provider: source.provider.id,
-			model: model,
-			name: name,
-			apiKey: apiKey,
-			baseUrl: baseUrl,
-			resourceName: resourceName,
-			project: project,
-			location: location,
+			model: model?.trim(),
+			name: name?.trim(),
+			apiKey: apiKey?.trim(),
+			baseUrl: baseUrl?.trim(),
+			resourceName: resourceName?.trim(),
+			project: project?.trim(),
+			location: location?.trim(),
 			toolCalls: toolCalls,
 			numCtx: numCtx,
 		})
@@ -171,18 +171,20 @@ const LanguageModelConfiguration = (props: React.PropsWithChildren<LanguageModel
 				/>
 			</label>
 
-			<LabeledTextInput
-				label={(() => localize('positron.newConnectionModalDialog.name', "Name"))()}
-				validator={(value) => value ? undefined : localize('positron.newConnectionModalDialog.missingName', 'A model name is required')}
-				value={name}
-				onChange={e => { setName(e.currentTarget.value) }}
-			/>
-			<LabeledTextInput
-				label={(() => localize('positron.newConnectionModalDialog.model', "Model"))()}
-				validator={(value) => value ? undefined : localize('positron.newConnectionModalDialog.missingModel', 'A model is required')}
-				value={model}
-				onChange={e => { setModel(e.currentTarget.value) }}
-			/>
+			{source?.supportedOptions.includes('name') &&
+				<LabeledTextInput
+					label={(() => localize('positron.newConnectionModalDialog.name', "Name"))()}
+					validator={(value) => value ? undefined : localize('positron.newConnectionModalDialog.missingName', 'A model name is required')}
+					value={name ?? ''}
+					onChange={e => { setName(e.currentTarget.value) }}
+				/>}
+			{source?.supportedOptions.includes('model') &&
+				<LabeledTextInput
+					label={(() => localize('positron.newConnectionModalDialog.model', "Model"))()}
+					validator={(value) => value ? undefined : localize('positron.newConnectionModalDialog.missingModel', 'A model is required')}
+					value={model ?? ''}
+					onChange={e => { setModel(e.currentTarget.value) }}
+				/>}
 			{source?.supportedOptions.includes('baseUrl') &&
 				<LabeledTextInput
 					label={(() => localize('positron.newConnectionModalDialog.baseURL', "Base URL"))()}

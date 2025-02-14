@@ -12,6 +12,7 @@ import { toLanguageModelChatMessage } from './utils';
 import { getStoredModels } from './config';
 import { QUARTO_COMMAND, QUARTO_DESCRIPTION, quartoHandler } from './commands/quarto';
 import { defaultHandler } from './commands/default';
+import { CopilotCoordinator } from './copilot';
 
 const mdDir = `${EXTENSION_ROOT_DIR}/src/md/`;
 
@@ -52,6 +53,10 @@ class PositronAssistantParticipant implements positron.ai.ChatParticipant {
 			const models = await vscode.lm.selectChatModels({ id: result.metadata?.modelId });
 			if (models.length === 0) {
 				throw new Error(vscode.l10n.t('Selected model not available.'));
+			}
+
+			if (models[0].family === 'copilot') {
+				return CopilotCoordinator.getFollowup(result);
 			}
 
 			const response = await models[0].sendRequest(messages, { modelOptions: { system } }, token);

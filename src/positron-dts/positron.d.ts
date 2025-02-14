@@ -1614,9 +1614,7 @@ declare module 'positron' {
 		export interface LanguageModelSource {
 			type: PositronLanguageModelType;
 			provider: { id: string; displayName: string };
-			supportedOptions: Exclude<{
-				[K in keyof LanguageModelConfig]: undefined extends LanguageModelConfig[K] ? K : never
-			}[keyof LanguageModelConfig], undefined>[];
+			supportedOptions: (keyof LanguageModelConfig)[];
 			defaults: LanguageModelConfigOptions;
 		}
 
@@ -1632,8 +1630,8 @@ declare module 'positron' {
 		 * Positron Language Model configuration options.
 		 */
 		export interface LanguageModelConfigOptions {
-			name: string;
-			model: string;
+			name?: string;
+			model?: string;
 			baseUrl?: string;
 			apiKey?: string;
 			toolCalls?: boolean;

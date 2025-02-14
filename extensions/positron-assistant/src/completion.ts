@@ -20,6 +20,7 @@ import { createAzure } from '@ai-sdk/azure';
 
 import { loadSetting } from '@ai-sdk/provider-utils';
 import { GoogleAuth } from 'google-auth-library';
+import { CopilotCoordinator } from './copilot';
 
 const mdDir = `${EXTENSION_ROOT_DIR}/src/md/`;
 
@@ -163,7 +164,7 @@ class OpenAILegacyCompletion extends CompletionModel {
 			id: 'openai-legacy',
 			displayName: 'OpenAI (Legacy)'
 		},
-		supportedOptions: ['baseUrl', 'apiKey'],
+		supportedOptions: ['name', 'model', 'baseUrl', 'apiKey'],
 		defaults: {
 			name: 'GPT 3.5 Turbo',
 			model: 'gpt-3.5-turbo-instruct',
@@ -245,7 +246,7 @@ class MistralCompletion extends OpenAILegacyCompletion {
 			id: 'mistral',
 			displayName: 'Mistral'
 		},
-		supportedOptions: ['baseUrl', 'apiKey'],
+		supportedOptions: ['name', 'model', 'baseUrl', 'apiKey'],
 		defaults: {
 			name: 'Codestral',
 			model: 'codestral-latest',
@@ -267,7 +268,7 @@ class DeepSeekCompletion extends OpenAILegacyCompletion {
 			id: 'deepseek',
 			displayName: 'DeepSeek'
 		},
-		supportedOptions: ['baseUrl', 'apiKey'],
+		supportedOptions: ['name', 'model', 'baseUrl', 'apiKey'],
 		defaults: {
 			name: 'DeepSeek V3',
 			model: 'deepseek-chat',
@@ -289,7 +290,7 @@ class OllamaCompletion extends OpenAILegacyCompletion {
 			id: 'ollama',
 			displayName: 'Ollama'
 		},
-		supportedOptions: ['baseUrl'],
+		supportedOptions: ['name', 'model', 'baseUrl'],
 		defaults: {
 			name: 'Qwen 2.5 Base (3b)',
 			model: 'qwen2.5-coder:3b-base',
@@ -316,7 +317,7 @@ class VertexLegacyCompletion extends MistralCompletion {
 			id: 'vertex-legacy',
 			displayName: 'Google Vertex (OpenAI Legacy API)'
 		},
-		supportedOptions: ['project', 'location'],
+		supportedOptions: ['name', 'model', 'project', 'location'],
 		defaults: {
 			name: 'Codestral (Google Vertex)',
 			model: 'codestral-2501',
@@ -429,7 +430,7 @@ class AnthropicCompletion extends FimPromptCompletion {
 			id: 'anthropic',
 			displayName: 'Anthropic'
 		},
-		supportedOptions: ['apiKey'],
+		supportedOptions: ['name', 'model', 'apiKey'],
 		defaults: {
 			name: 'Claude 3.5 Sonnet',
 			model: 'claude-3-5-sonnet-latest',
@@ -451,7 +452,7 @@ class OpenAICompletion extends FimPromptCompletion {
 			id: 'openai',
 			displayName: 'OpenAI'
 		},
-		supportedOptions: ['apiKey', 'baseUrl'],
+		supportedOptions: ['name', 'model', 'apiKey', 'baseUrl'],
 		defaults: {
 			name: 'GPT-4o',
 			model: 'gpt-4o',
@@ -477,7 +478,7 @@ class OpenRouterCompletion extends FimPromptCompletion {
 			id: 'openrouter',
 			displayName: 'OpenRouter'
 		},
-		supportedOptions: ['apiKey', 'baseUrl'],
+		supportedOptions: ['name', 'model', 'apiKey', 'baseUrl'],
 		defaults: {
 			name: 'Claude 3.5 Sonnet',
 			model: 'anthropic/claude-3.5-sonnet',
@@ -503,7 +504,7 @@ class AWSCompletion extends FimPromptCompletion {
 			id: 'bedrock',
 			displayName: 'AWS Bedrock'
 		},
-		supportedOptions: [],
+		supportedOptions: ['name', 'model'],
 		defaults: {
 			name: 'Claude 3.5 Sonnet v2',
 			model: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
@@ -530,7 +531,7 @@ class VertexCompletion extends FimPromptCompletion {
 			id: 'vertex',
 			displayName: 'Google Vertex'
 		},
-		supportedOptions: ['project', 'location'],
+		supportedOptions: ['name', 'model', 'project', 'location'],
 		defaults: {
 			name: 'Gemini 1.5 Flash',
 			model: 'gemini-1.5-flash-002',
@@ -557,7 +558,7 @@ class AzureCompletion extends FimPromptCompletion {
 			id: 'azure',
 			displayName: 'Azure'
 		},
-		supportedOptions: ['resourceName', 'apiKey'],
+		supportedOptions: ['name', 'model', 'resourceName', 'apiKey'],
 		defaults: {
 			name: 'GPT 4o',
 			model: 'gpt-4o',
@@ -575,6 +576,43 @@ class AzureCompletion extends FimPromptCompletion {
 }
 
 //#endregion
+//#region GitHub Copilot
+
+class CopilotCompletion implements vscode.InlineCompletionItemProvider {
+	public name;
+	public identifier;
+	public copilot;
+
+	static source: positron.ai.LanguageModelSource = {
+		type: positron.PositronLanguageModelType.Completion,
+		provider: {
+			id: 'copilot',
+			displayName: 'GitHub Copilot'
+		},
+		supportedOptions: [],
+		defaults: {
+			name: 'NA',
+			model: 'na',
+		},
+	};
+
+	constructor(protected readonly _config: ModelConfig) {
+		this.identifier = _config.id;
+		this.name = _config.name;
+		this.copilot = CopilotCoordinator.getInstance(_config.extension);
+	}
+
+	provideInlineCompletionItems(
+		document: vscode.TextDocument,
+		position: vscode.Position,
+		context: vscode.InlineCompletionContext,
+		token: vscode.CancellationToken
+	): Promise<vscode.InlineCompletionList> {
+		return this.copilot.provideInlineCompletionItems(document, position, context, token);
+	}
+}
+
+//#endregion
 //#region Module exports
 
 export function newCompletionProvider(config: ModelConfig): vscode.InlineCompletionItemProvider {
@@ -582,6 +620,7 @@ export function newCompletionProvider(config: ModelConfig): vscode.InlineComplet
 		'anthropic': AnthropicCompletion,
 		'azure': AzureCompletion,
 		'bedrock': AWSCompletion,
+		'copilot': CopilotCompletion,
 		'deepseek': DeepSeekCompletion,
 		'mistral': MistralCompletion,
 		'ollama': OllamaCompletion,
@@ -603,6 +642,7 @@ export const completionModels = [
 	AnthropicCompletion,
 	AWSCompletion,
 	AzureCompletion,
+	CopilotCompletion,
 	DeepSeekCompletion,
 	MistralCompletion,
 	OllamaCompletion,

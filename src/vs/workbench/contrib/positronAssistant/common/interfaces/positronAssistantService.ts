@@ -36,22 +36,18 @@ export enum PositronLanguageModelType {
 	Completion = 'completion',
 }
 
-export type PositronLanguageModelOptions = Exclude<{
-	[K in keyof IPositronLanguageModelConfig]: undefined extends IPositronLanguageModelConfig[K] ? K : never
-}[keyof IPositronLanguageModelConfig], undefined>;
-
 export interface IPositronLanguageModelSource {
 	type: PositronLanguageModelType;
 	provider: { id: string; displayName: string };
-	supportedOptions: PositronLanguageModelOptions[];
+	supportedOptions: (keyof IPositronLanguageModelConfig)[];
 	defaults: Omit<IPositronLanguageModelConfig, 'provider' | 'type'>;
 }
 
 export interface IPositronLanguageModelConfig {
 	type: PositronLanguageModelType;
 	provider: string;
-	name: string;
-	model: string;
+	name?: string;
+	model?: string;
 	baseUrl?: string;
 	apiKey?: string;
 	toolCalls?: boolean;
